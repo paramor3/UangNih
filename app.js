@@ -124,6 +124,12 @@ class UangNihApp {
       btnPreviewCancel: document.getElementById('btn-preview-cancel'),
       btnPreviewSave: document.getElementById('btn-preview-save'),
 
+      // Detail Drawer
+      drawerDetail: document.getElementById('drawer-detail'),
+      btnCloseDetail: document.getElementById('btn-close-detail'),
+      btnDetailDeleteAction: document.getElementById('btn-detail-delete-action'),
+      btnDetailCloseAction: document.getElementById('btn-detail-close-action'),
+
       // Profile Modal
       modalProfile: document.getElementById('modal-profile'),
       btnCloseProfile: document.getElementById('btn-close-profile'),
@@ -219,6 +225,17 @@ class UangNihApp {
     this.el.previewTypeExpense.addEventListener('click', () => this.setPreviewType('expense'));
     this.el.previewTypeIncome.addEventListener('click', () => this.setPreviewType('income'));
     this.el.previewForm.addEventListener('submit', () => this.savePreviewTransaction());
+
+    // Detail Drawer Action Buttons
+    this.el.btnCloseDetail.addEventListener('click', () => this.hideDrawer('detail'));
+    this.el.btnDetailCloseAction.addEventListener('click', () => this.hideDrawer('detail'));
+    this.el.btnDetailDeleteAction.addEventListener('click', () => {
+      const activeId = this.el.btnDetailDeleteAction.getAttribute('data-id');
+      if (activeId) {
+        this.deleteTransaction(activeId);
+        this.hideDrawer('detail');
+      }
+    });
 
     // Month Selector for Stats
     this.el.btnPrevMonth.addEventListener('click', () => this.changeMonth(-1));
@@ -323,10 +340,12 @@ class UangNihApp {
 
   showDrawer(drawerId) {
     if (drawerId === 'preview') this.el.drawerPreview.classList.add('active');
+    if (drawerId === 'detail') this.el.drawerDetail.classList.add('active');
   }
 
   hideDrawer(drawerId) {
     if (drawerId === 'preview') this.el.drawerPreview.classList.remove('active');
+    if (drawerId === 'detail') this.el.drawerDetail.classList.remove('active');
   }
 
   handleFabClick() {
@@ -1110,7 +1129,7 @@ class UangNihApp {
         const iconName = this.getCategoryIcon(t.category);
 
         listHTML += `
-          <div class="transaction-card" id="t-card-${t.id}">
+          <div class="transaction-card" id="t-card-${t.id}" onclick="app.showTransactionDetail('${t.id}')" style="cursor: pointer;">
             <div class="t-info">
               <div class="t-icon-box ${catClass}">
                 <span class="material-icons-round">${iconName}</span>
@@ -1124,7 +1143,7 @@ class UangNihApp {
             </div>
             <div class="t-amount-section">
               <span class="t-amount ${typeClass}">${sign} ${amountFormatted}</span>
-              <button class="btn-delete-trans" onclick="app.deleteTransaction('${t.id}')" title="Hapus">
+              <button class="btn-delete-trans" onclick="event.stopPropagation(); app.deleteTransaction('${t.id}')" title="Hapus">
                 <span class="material-icons-round" style="font-size: 18px;">delete_outline</span>
               </button>
             </div>
@@ -1136,6 +1155,54 @@ class UangNihApp {
     });
 
     this.el.transactionList.innerHTML = listHTML;
+  }
+
+  showTransactionDetail(id) {
+    const t = this.transactions.find(item => item.id === id);
+    if (!t) return;
+
+    const sign = t.type === 'income' ? '+' : '-';
+    const typeClass = t.type;
+    const typeText = t.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
+    const amountFormatted = this.formatIDR(t.amount);
+    const catClass = t.category.toLowerCase().replace(/\s+/g, '-');
+    const iconName = this.getCategoryIcon(t.category);
+
+    const dateObj = new Date(t.date);
+    const dateFormatted = dateObj.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+
+    const contentHTML = `
+      <div class="detail-header-section">
+        <div class="detail-icon-wrapper ${catClass}">
+          <span class="material-icons-round">${iconName}</span>
+        </div>
+        <div class="detail-amount ${typeClass}">${sign} ${amountFormatted}</div>
+        <div class="detail-desc">${t.description}</div>
+      </div>
+      <div class="detail-info-list">
+        <div class="detail-info-row">
+          <span class="detail-info-label">Tipe</span>
+          <span class="detail-info-value ${typeClass}">${typeText}</span>
+        </div>
+        <div class="detail-info-row">
+          <span class="detail-info-label">Kategori</span>
+          <span class="detail-info-value">${t.category}</span>
+        </div>
+        <div class="detail-info-row">
+          <span class="detail-info-label">Tanggal</span>
+          <span class="detail-info-value">${dateFormatted}</span>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('transaction-detail-content').innerHTML = contentHTML;
+    this.el.btnDetailDeleteAction.setAttribute('data-id', t.id);
+    this.showDrawer('detail');
   }
 
   // ================= VIEW RENDERING (STATISTIK) =================

@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   
   <!-- CSS Stylesheet -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
   
   <!-- Phantom UI CDN (Skeleton Loader Web Component) -->
   <script src="https://cdn.jsdelivr.net/npm/@aejkatappaja/phantom-ui/dist/phantom-ui.cdn.js"></script>
@@ -332,6 +332,30 @@
         </div>
       </div>
 
+      <!-- TRANSACTION DETAIL DRAWER (BOTTOM DRAWER) -->
+      <div id="drawer-detail" class="drawer-overlay">
+        <div class="drawer-card">
+          <div class="drawer-handle"></div>
+          <div class="drawer-header">
+            <h3>Detail Transaksi</h3>
+            <button class="btn-close-drawer" id="btn-close-detail">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+          <div class="drawer-body">
+            <div id="transaction-detail-content">
+              <!-- Content will be injected dynamically -->
+            </div>
+            <div class="drawer-actions" style="margin-top: 20px;">
+              <button type="button" id="btn-detail-delete-action" class="btn-secondary flex-1" style="color: var(--expense); background-color: var(--expense-light);">
+                <span class="material-icons-round" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">delete_outline</span>Hapus
+              </button>
+              <button type="button" id="btn-detail-close-action" class="btn-primary flex-2">Tutup</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- PROFILE & AUTH MODAL -->
       <div id="modal-profile" class="modal-overlay">
         <div class="modal-card">
@@ -476,7 +500,7 @@
   </div>
 
   <!-- JS Modules -->
-  <script src="parser.js"></script>
-  <script src="app.js"></script>
+  <script src="parser.js?v=2"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

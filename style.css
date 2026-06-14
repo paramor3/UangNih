@@ -72,7 +72,7 @@ body {
   overflow: hidden;
 }
 
-@media (min-width: 481px) {
+@media (min-width: 481px) and (min-height: 900px) {
   .device-frame {
     height: 850px;
     border-radius: 32px;
@@ -1262,6 +1262,7 @@ body {
   border-radius: 20px;
   width: 100%;
   max-width: 380px;
+  max-height: 100%;
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   display: flex;
@@ -1623,6 +1624,7 @@ select:focus {
   background-color: var(--bg-secondary);
   border-radius: 24px 24px 0 0;
   width: 100%;
+  max-height: 90%;
   box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
@@ -1671,6 +1673,8 @@ select:focus {
 
 .drawer-body {
   padding: 16px 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .drawer-actions {
@@ -2001,4 +2005,89 @@ phantom-ui[loading] {
 .month-nav-btn:active {
   transform: scale(0.95);
   transition: transform 0.1s ease;
+}
+
+/* TRANSACTION DETAIL DRAWER SPECIFIC STYLES */
+.detail-header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 0 24px 0;
+  border-bottom: 1px dashed var(--border-color);
+  margin-bottom: 20px;
+}
+
+.detail-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.detail-icon-wrapper .material-icons-round {
+  font-size: 32px;
+}
+
+.detail-amount {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.detail-amount.income {
+  color: var(--income-dark);
+}
+
+.detail-amount.expense {
+  color: var(--expense-dark);
+}
+
+.detail-desc {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 90%;
+  word-break: break-word;
+}
+
+.detail-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background-color: var(--bg-primary);
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 8px;
+}
+
+.detail-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.detail-info-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.detail-info-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.detail-info-value.income {
+  color: var(--income-dark);
+}
+
+.detail-info-value.expense {
+  color: var(--expense-dark);
 }
