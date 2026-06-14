@@ -1,0 +1,23 @@
+{
+  "name": "uangnih",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "build": "javascript-obfuscator src/app.js --output app.js --compact true --self-defending true --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --transform-object-keys true && javascript-obfuscator src/parser.js --output parser.js --compact true --self-defending true --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --transform-object-keys true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paramor3/UangNih.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/paramor3/UangNih/issues"
+  },
+  "homepage": "https://github.com/paramor3/UangNih#readme",
+  "devDependencies": {
+    "javascript-obfuscator": "^5.4.3"
+  }
+}

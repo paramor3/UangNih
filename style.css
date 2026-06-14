@@ -248,7 +248,7 @@ body {
 }
 
 .banner-action-btn {
-  background-color: #3b82f6;
+  background-color: #1d4ed8;
   color: white;
   border: none;
   padding: 4px 10px;
@@ -260,7 +260,7 @@ body {
 }
 
 .banner-action-btn:hover {
-  background-color: #2563eb;
+  background-color: #1e40af;
 }
 
 /* SUMMARY CARD (DASHBOARD) */
@@ -369,7 +369,7 @@ body {
 .section-title-sm {
   font-size: 12px;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -444,7 +444,7 @@ body {
 
 .input-tip {
   font-size: 10px;
-  color: var(--text-muted);
+  color: #475569;
   line-height: 1.4;
   margin-left: 4px;
 }
@@ -1174,7 +1174,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   flex: 1;
   height: 100%;
