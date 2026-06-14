@@ -3,12 +3,23 @@
  * Manages State, UI Interactions, Web Speech API, Firebase Sync, and SVG Charts
  */
 
+// Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC1iwhmGbuVPaA-OEW_hQvKLRH7LKQBsh4",
+  authDomain: "catat-keuangan3.firebaseapp.com",
+  projectId: "catat-keuangan3",
+  storageBucket: "catat-keuangan3.firebasestorage.app",
+  messagingSenderId: "711474608759",
+  appId: "1:711474608759:web:20f49fd6a038fe54f56472",
+  measurementId: "G-4W4MLB3LRK"
+};
+
 class UangNihApp {
   constructor() {
     // Application State
     this.transactions = [];
     this.user = null; // Logged in user info { uid, displayName, email, photoURL }
-    this.isDemoMode = true; // True if using simulated Firebase, False if real Firebase is configured
+    this.isDemoMode = false; // False by default to connect to the real Firebase config
     this.startingBalance = 0;
     this.recurringBills = [];
     
@@ -126,15 +137,7 @@ class UangNihApp {
       btnImportTrigger: document.getElementById('btn-import-trigger'),
       fileImport: document.getElementById('file-import'),
 
-      // Firebase Config Fields
-      toggleCustomFirebase: document.getElementById('toggle-custom-firebase'),
-      customFirebaseForm: document.getElementById('custom-firebase-form'),
-      fbApiKey: document.getElementById('fb-apiKey'),
-      fbAuthDomain: document.getElementById('fb-authDomain'),
-      fbProjectId: document.getElementById('fb-projectId'),
-      fbAppId: document.getElementById('fb-appId'),
-      btnSaveFirebaseConfig: document.getElementById('btn-save-firebase-config'),
-      btnClearFirebaseConfig: document.getElementById('btn-clear-firebase-config'),
+
       btnFab: document.getElementById('btn-fab'),
 
       // Balance Modal
@@ -237,29 +240,7 @@ class UangNihApp {
     this.el.btnImportTrigger.addEventListener('click', () => this.el.fileImport.click());
     this.el.fileImport.addEventListener('change', (e) => this.importTransactionsJSON(e));
 
-    // Custom Firebase configuration
-    this.el.toggleCustomFirebase.addEventListener('change', (e) => {
-      if (e.target.checked) {
-        this.el.customFirebaseForm.classList.remove('hidden');
-      } else {
-        this.el.customFirebaseForm.classList.add('hidden');
-        localStorage.removeItem('uangnih_custom_firebase');
-        this.isDemoMode = true;
-        this.initFirebase();
-      }
-    });
-    this.el.btnSaveFirebaseConfig.addEventListener('click', () => this.saveCustomFirebaseConfig());
-    this.el.btnClearFirebaseConfig.addEventListener('click', () => {
-      this.el.fbApiKey.value = '';
-      this.el.fbAuthDomain.value = '';
-      this.el.fbProjectId.value = '';
-      this.el.fbAppId.value = '';
-      localStorage.removeItem('uangnih_custom_firebase');
-      this.el.toggleCustomFirebase.checked = false;
-      this.el.customFirebaseForm.classList.add('hidden');
-      this.isDemoMode = true;
-      this.initFirebase();
-    });
+
 
     // FAB Button Click
     this.el.btnFab.addEventListener('click', () => this.handleFabClick());
@@ -285,20 +266,7 @@ class UangNihApp {
       this.user = JSON.parse(storedUser);
     }
 
-    // Load Custom Firebase status
-    const customFbConfig = localStorage.getItem('uangnih_custom_firebase');
-    if (customFbConfig) {
-      this.el.toggleCustomFirebase.checked = true;
-      this.el.customFirebaseForm.classList.remove('hidden');
-      const config = JSON.parse(customFbConfig);
-      this.el.fbApiKey.value = config.apiKey || '';
-      this.el.fbAuthDomain.value = config.authDomain || '';
-      this.el.fbProjectId.value = config.projectId || '';
-      this.el.fbAppId.value = config.appId || '';
-      this.isDemoMode = false;
-    } else {
-      this.isDemoMode = true;
-    }
+    this.isDemoMode = false;
 
     // Initialize Firebase Auth / DB
     this.initFirebase();
@@ -567,65 +535,44 @@ class UangNihApp {
       this.firestoreUnsubscribe = null;
     }
 
-    if (this.isDemoMode) {
-      // Demo mock Mode - updates indicator and loads mock data
-      this.el.syncIndicator.className = 'sync-dot offline';
-      this.el.syncIndicator.title = 'Offline (Penyimpanan Lokal)';
-      this.loadTransactions();
-    } else {
-      // Custom Firebase Mode
-      const configStr = localStorage.getItem('uangnih_custom_firebase');
-      if (!configStr) {
-        this.isDemoMode = true;
-        this.initFirebase();
-        return;
+    try {
+      // Prevent re-initializing the same app if already initialized
+      if (firebase.apps.length === 0) {
+        this.firebaseApp = firebase.initializeApp(firebaseConfig);
+      } else {
+        this.firebaseApp = firebase.app();
       }
 
-      const config = JSON.parse(configStr);
+      this.firestoreDb = firebase.firestore();
+      this.firebaseAuth = firebase.auth();
 
-      try {
-        // Prevent re-initializing the same app if already initialized
-        if (firebase.apps.length === 0) {
-          this.firebaseApp = firebase.initializeApp(config);
+      // Listen to Auth State
+      this.firebaseAuth.onAuthStateChanged((user) => {
+        if (user) {
+          this.user = {
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL
+          };
+          localStorage.setItem('uangnih_user_session', JSON.stringify(this.user));
+          this.el.syncIndicator.className = 'sync-dot online';
+          this.el.syncIndicator.title = 'Terhubung dengan Firebase';
+          this.setupFirebaseSyncListener();
         } else {
-          this.firebaseApp = firebase.app();
+          this.user = null;
+          localStorage.removeItem('uangnih_user_session');
+          this.el.syncIndicator.className = 'sync-dot offline';
+          this.el.syncIndicator.title = 'Offline (Penyimpanan Lokal)';
+          this.loadTransactions();
         }
+        this.updateUserUI();
+      });
 
-        this.firestoreDb = firebase.firestore();
-        this.firebaseAuth = firebase.auth();
-
-        // Listen to Auth State
-        this.firebaseAuth.onAuthStateChanged((user) => {
-          if (user) {
-            this.user = {
-              uid: user.uid,
-              displayName: user.displayName,
-              email: user.email,
-              photoURL: user.photoURL
-            };
-            localStorage.setItem('uangnih_user_session', JSON.stringify(this.user));
-            this.el.syncIndicator.className = 'sync-dot online';
-            this.el.syncIndicator.title = 'Terhubung dengan Firebase';
-            this.setupFirebaseSyncListener();
-          } else {
-            this.user = null;
-            localStorage.removeItem('uangnih_user_session');
-            this.el.syncIndicator.className = 'sync-dot offline';
-            this.el.syncIndicator.title = 'Offline (Penyimpanan Lokal)';
-            this.loadTransactions();
-          }
-          this.updateUserUI();
-        });
-
-      } catch (err) {
-        console.error('Gagal menginisialisasi Firebase Kustom:', err);
-        alert('Gagal menginisialisasi Firebase Kustom. Periksa kembali API Key / Project ID Anda.');
-        this.isDemoMode = true;
-        this.el.toggleCustomFirebase.checked = false;
-        this.el.customFirebaseForm.classList.add('hidden');
-        localStorage.removeItem('uangnih_custom_firebase');
-        this.initFirebase();
-      }
+    } catch (err) {
+      console.error('Gagal menginisialisasi Firebase:', err);
+      this.isDemoMode = true;
+      this.loadTransactions();
     }
   }
 
@@ -697,24 +644,7 @@ class UangNihApp {
       });
   }
 
-  saveCustomFirebaseConfig() {
-    const config = {
-      apiKey: this.el.fbApiKey.value.trim(),
-      authDomain: this.el.fbAuthDomain.value.trim(),
-      projectId: this.el.fbProjectId.value.trim(),
-      appId: this.el.fbAppId.value.trim(),
-    };
 
-    if (!config.apiKey || !config.authDomain || !config.projectId || !config.appId) {
-      alert("Harap lengkapi semua bidang kredensial Firebase.");
-      return;
-    }
-
-    localStorage.setItem('uangnih_custom_firebase', JSON.stringify(config));
-    this.isDemoMode = false;
-    this.initFirebase();
-    alert("Kredensial Firebase kustom berhasil disimpan. Menghubungkan...");
-  }
 
   // ================= GOOGLE LOGIN FLOW =================
   loginGoogle() {
