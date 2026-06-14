@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>UangNih - Catat Keuangan Simpel</title>
+  <!-- Google Font & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Phantom UI CDN (Skeleton Loader Web Component) -->
+  <script src="https://cdn.jsdelivr.net/npm/@aejkatappaja/phantom-ui/dist/phantom-ui.cdn.js"></script>
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="device-frame">
+    <div class="app-container">
+      
+      <!-- HEADER -->
+      <header class="app-header">
+        <div class="header-left">
+          <h1 class="logo">UangNih</h1>
+          <span class="sub-logo">Catat Keuangan Instan</span>
+        </div>
+        <div class="header-right">
+          <!-- Firebase Connection Indicator & Profile -->
+          <button id="btn-profile" class="profile-btn" title="Pengaturan Akun / Firebase">
+            <span class="material-icons-round">account_circle</span>
+            <span id="sync-indicator" class="sync-dot offline" title="Offline (Penyimpanan Lokal)"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- MAIN CONTENT WRAPPER -->
+      <main class="app-content">
+        
+        <!-- PAGE 1: BERANDA -->
+        <section id="page-home" class="page-view active">
+          
+          <!-- BANNER SINKRONISASI OFFLINE -->
+          <div id="offline-banner" class="alert-banner">
+            <span class="material-icons-round">cloud_off</span>
+            <span class="banner-text">Menggunakan Penyimpanan Lokal. Masuk dengan Google untuk sinkronisasi cloud.</span>
+            <button id="btn-banner-login" class="banner-action-btn">Masuk</button>
+          </div>
+
+          <!-- SUMMARY CARD (SALDO, MASUK, KELUAR) -->
+          <div class="summary-card">
+            <div class="summary-balance-section" id="btn-edit-balance" title="Atur Saldo Awal" style="cursor: pointer;">
+              <span class="label">Total Saldo Anda <span class="material-icons-round" style="font-size: 14px; vertical-align: middle; margin-left: 2px; opacity: 0.8;">edit</span></span>
+              <h2 id="total-balance" class="balance-value">Rp 0</h2>
+            </div>
+            <div class="summary-flow-section">
+              <div class="flow-item income">
+                <div class="flow-icon-wrapper">
+                  <span class="material-icons-round">arrow_upward</span>
+                </div>
+                <div class="flow-info">
+                  <span class="flow-label">Pemasukan</span>
+                  <span id="total-income" class="flow-value">Rp 0</span>
+                </div>
+              </div>
+              <div class="flow-divider"></div>
+              <div class="flow-item expense">
+                <div class="flow-icon-wrapper">
+                  <span class="material-icons-round">arrow_downward</span>
+                </div>
+                <div class="flow-info">
+                  <span class="flow-label">Pengeluaran</span>
+                  <span id="total-expense" class="flow-value">Rp 0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- QUICK INPUT PANEL -->
+          <div class="quick-input-card">
+            <h3 class="section-title-sm">Catat Cepat (Teks / Suara)</h3>
+            <div class="nlp-input-wrapper">
+              <input type="text" id="nlp-input" placeholder='Contoh: "beli kopi 5000 tgl 14 juni"' autocomplete="off">
+              <button id="btn-mic" class="mic-btn" title="Catat dengan Suara">
+                <span class="material-icons-round">mic</span>
+              </button>
+              <button id="btn-submit-nlp" class="submit-nlp-btn" title="Simpan Transaksi">
+                <span class="material-icons-round">send</span>
+              </button>
+            </div>
+            <p class="input-tip">Ketik deskripsi & nominal uang (misal: "beli bensin 20000" atau "gaji 3.5jt kemarin")</p>
+          </div>
+
+          <!-- FILTER & TRANSACTIONS SECTION -->
+          <div class="transactions-section">
+            <div class="section-header">
+              <h3 class="section-title">Riwayat Transaksi</h3>
+              <div class="search-btn-wrapper">
+                <button id="btn-search-toggle" class="icon-btn-toggle">
+                  <span class="material-icons-round">search</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- SEARCH BAR (HIDDEN BY DEFAULT) -->
+            <div id="search-bar-container" class="search-bar-container hidden">
+              <div class="search-input-wrapper">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" id="search-input" placeholder="Cari transaksi...">
+              </div>
+            </div>
+
+            <!-- FILTER CHIPS -->
+            <div class="filter-chips">
+              <button class="chip active" data-filter="all">Semua</button>
+              <button class="chip" data-filter="income">Pemasukan</button>
+              <button class="chip" data-filter="expense">Pengeluaran</button>
+            </div>
+
+            <!-- TRANSACTION LIST WITH SKELETON LOADER -->
+            <phantom-ui id="transactions-skeleton">
+              <div id="transaction-list" class="transaction-list">
+                <!-- Transactions will be dynamically inserted here -->
+                <div class="empty-state">
+                  <div class="empty-icon-wrapper">
+                    <span class="material-icons-round">receipt_long</span>
+                  </div>
+                  <p class="empty-title">Belum ada transaksi</p>
+                  <p class="empty-subtitle">Mulai catat dengan mengetik atau menekan tombol mikrofon di atas.</p>
+                </div>
+              </div>
+            </phantom-ui>
+          </div>
+
+        </section>
+
+        <!-- PAGE 2: STATISTIK -->
+        <section id="page-stats" class="page-view">
+          <div class="stats-header">
+            <h2 class="section-title">Analisis Keuangan</h2>
+            <!-- Month Selector -->
+            <div class="month-selector">
+              <button id="btn-prev-month" class="month-nav-btn">
+                <span class="material-icons-round">chevron_left</span>
+              </button>
+              <span id="current-month-display" class="current-month-name">Juni 2026</span>
+              <button id="btn-next-month" class="month-nav-btn">
+                <span class="material-icons-round">chevron_right</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SUMMARY CARD MINI -->
+          <div class="mini-summary-grid">
+            <div class="mini-card income">
+              <span class="mini-label">Pendapatan Bulan Ini</span>
+              <span id="month-income" class="mini-value">Rp 0</span>
+            </div>
+            <div class="mini-card expense">
+              <span class="mini-label">Pengeluaran Bulan Ini</span>
+              <span id="month-expense" class="mini-value">Rp 0</span>
+            </div>
+          </div>
+
+          <!-- CHARTS SECTION -->
+          <div class="charts-card">
+            <div class="chart-tab-header">
+              <button class="chart-tab active" data-chart="categories">Kategori Pengeluaran</button>
+              <button class="chart-tab" data-chart="trend">Tren Mingguan</button>
+            </div>
+
+            <div class="chart-container-wrapper">
+              <!-- CATEGORY DONUT CHART -->
+              <div id="chart-categories-container" class="chart-container">
+                <div class="svg-chart-wrapper">
+                  <svg id="donut-chart" viewBox="0 0 100 100" width="160" height="160">
+                    <!-- Dynamic Donut Paths will be injected here -->
+                  </svg>
+                  <div class="donut-center-info">
+                    <span id="donut-total" class="total-amount">Rp 0</span>
+                    <span class="total-label">Total</span>
+                  </div>
+                </div>
+                <!-- Legend list -->
+                <div id="category-legend" class="category-legend">
+                  <!-- Injected from JS -->
+                </div>
+              </div>
+
+              <!-- TREND BAR CHART -->
+              <div id="chart-trend-container" class="chart-container hidden">
+                <div class="svg-trend-wrapper">
+                  <svg id="bar-chart" viewBox="0 0 300 150" width="100%" height="150">
+                    <!-- Dynamic Bars will be injected here -->
+                  </svg>
+                </div>
+                <div class="trend-legend">
+                  <span class="trend-legend-item"><span class="legend-color income"></span>Pemasukan</span>
+                  <span class="trend-legend-item"><span class="legend-color expense"></span>Pengeluaran</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CATEGORY BREAKDOWN LIST -->
+          <div class="category-breakdown-card">
+            <h3 class="section-title-sm">Rincian per Kategori</h3>
+            <div id="category-breakdown-list" class="category-breakdown-list">
+              <!-- Injected from JS -->
+              <div class="empty-breakdown">Tidak ada pengeluaran pada bulan ini.</div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- BOTTOM NAVIGATION BAR -->
+      <nav class="app-nav">
+        <button id="nav-btn-home" class="nav-item active">
+          <span class="material-icons-round">home</span>
+          <span class="nav-text">Beranda</span>
+        </button>
+        <div class="nav-fab-placeholder"></div>
+        <button id="nav-btn-stats" class="nav-item">
+          <span class="material-icons-round">bar_chart</span>
+          <span class="nav-text">Statistik</span>
+        </button>
+      </nav>
+
+      <!-- FLOATING ACTION BUTTON (FAB) -->
+      <button id="btn-fab" class="fab-btn" title="Tambah Transaksi">
+        <span class="material-icons-round">add</span>
+      </button>
+
+      <!-- ================= MODALS & DRAWERS ================= -->
+
+      <!-- VOICE RECORDING MODAL -->
+      <div id="modal-voice" class="modal-overlay">
+        <div class="modal-card voice-card">
+          <div class="voice-header">
+            <h3>Mendengarkan...</h3>
+            <button class="btn-close-modal" id="btn-close-voice">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+          <div class="voice-wave-container">
+            <div class="voice-wave-circle ring-1"></div>
+            <div class="voice-wave-circle ring-2"></div>
+            <div class="voice-wave-circle ring-3"></div>
+            <div class="voice-mic-indicator">
+              <span class="material-icons-round">mic</span>
+            </div>
+          </div>
+          <div class="voice-transcript-wrapper">
+            <p id="voice-transcript-text" class="voice-placeholder">Katakan sesuatu, seperti: "Beli bakso dua puluh ribu rupiah tanggal 12 juni..."</p>
+          </div>
+          <div class="voice-actions">
+            <button id="btn-voice-cancel" class="btn-secondary">Batal</button>
+            <button id="btn-voice-done" class="btn-primary">Selesai</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARSED PREVIEW DRAWER (BOTTOM DRAWER) -->
+      <div id="drawer-preview" class="drawer-overlay">
+        <div class="drawer-card">
+          <div class="drawer-handle"></div>
+          <div class="drawer-header">
+            <h3>Konfirmasi Transaksi</h3>
+            <button class="btn-close-drawer" id="btn-close-preview">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+          <div class="drawer-body">
+            <form id="preview-form" onsubmit="event.preventDefault();">
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="preview-type">Tipe</label>
+                  <div class="segmented-control">
+                    <button type="button" class="segment-btn active" id="btn-type-expense" data-type="expense">Pengeluaran</button>
+                    <button type="button" class="segment-btn" id="btn-type-income" data-type="income">Pemasukan</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="preview-desc">Deskripsi</label>
+                <input type="text" id="preview-desc" required placeholder="Contoh: Makan Siang">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-2">
+                  <label for="preview-amount">Jumlah (Rupiah)</label>
+                  <div class="input-currency-wrapper">
+                    <span class="currency-prefix">Rp</span>
+                    <input type="number" id="preview-amount" required min="1" placeholder="0">
+                  </div>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="preview-category">Kategori</label>
+                  <select id="preview-category">
+                    <option value="Makanan">Makanan</option>
+                    <option value="Transportasi">Transportasi</option>
+                    <option value="Belanja">Belanja</option>
+                    <option value="Tagihan">Tagihan</option>
+                    <option value="Hiburan">Hiburan</option>
+                    <option value="Gaji">Gaji</option>
+                    <option value="Investasi">Investasi</option>
+                    <option value="Lain-lain">Lain-lain</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="preview-date">Tanggal</label>
+                <input type="date" id="preview-date" required>
+              </div>
+
+              <div class="drawer-actions">
+                <button type="button" id="btn-preview-cancel" class="btn-secondary flex-1">Batal</button>
+                <button type="submit" id="btn-preview-save" class="btn-primary flex-2">Simpan Transaksi</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE & AUTH MODAL -->
+      <div id="modal-profile" class="modal-overlay">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>Pengaturan & Akun</h3>
+            <button class="btn-close-modal" id="btn-close-profile">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+            <!-- USER ACCOUNT SECTION -->
+            <div class="auth-section-card">
+              <div id="user-info-unlogged" class="auth-status-container">
+                <div class="auth-avatar-placeholder">
+                  <span class="material-icons-round">person_outline</span>
+                </div>
+                <div class="auth-text-info">
+                  <h4>Belum Masuk</h4>
+                  <p>Data disimpan secara lokal di browser Anda.</p>
+                </div>
+                <button id="btn-login-google" class="btn-google-login">
+                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/button-google-writing.png" alt="Google Logo" class="google-logo-img">
+                  Masuk dengan Google
+                </button>
+              </div>
+
+              <div id="user-info-logged" class="auth-status-container hidden">
+                <img id="user-avatar" class="auth-avatar-img" src="" alt="Avatar">
+                <div class="auth-text-info">
+                  <h4 id="user-display-name">Nama Pengguna</h4>
+                  <p id="user-email">email@domain.com</p>
+                  <span class="badge-synced">
+                    <span class="material-icons-round">cloud_done</span> Terkoneksi Firebase
+                  </span>
+                </div>
+                <button id="btn-logout" class="btn-secondary btn-sm">Keluar</button>
+              </div>
+            </div>
+
+            <!-- PORTABILITY SECTION -->
+            <div class="settings-group">
+              <h4>Portabilitas Data (Lokal)</h4>
+              <div class="settings-actions">
+                <button id="btn-export-data" class="btn-secondary btn-icon-text">
+                  <span class="material-icons-round">download</span> Ekspor JSON
+                </button>
+                <button id="btn-import-trigger" class="btn-secondary btn-icon-text">
+                  <span class="material-icons-round">upload</span> Impor JSON
+                </button>
+                <input type="file" id="file-import" class="hidden" accept=".json">
+              </div>
+            </div>
+
+            <!-- RECURRING BILLS SECTION -->
+            <div class="settings-group">
+              <div class="settings-group-header">
+                <h4>Tagihan Bulanan</h4>
+                <button id="btn-add-bill-trigger" class="btn-primary btn-sm btn-icon-text" type="button">
+                  <span class="material-icons-round" style="font-size: 14px; vertical-align: middle;">add</span> Tambah
+                </button>
+              </div>
+              <p class="settings-desc">Tagihan yang terdaftar akan secara otomatis dicatat sebagai pengeluaran setiap bulan saat jatuh tempo.</p>
+              <div id="recurring-bills-list" class="recurring-bills-list">
+                <!-- Injected from JS -->
+                <div class="empty-bills">Belum ada tagihan rutin bulanan.</div>
+              </div>
+            </div>
+
+            <!-- FIREBASE CONFIG SECTION -->
+            <div class="settings-group">
+              <div class="settings-group-header">
+                <h4>Koneksi Firebase Sendiri</h4>
+                <label class="switch">
+                  <input type="checkbox" id="toggle-custom-firebase">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+              <p class="settings-desc">Aktifkan untuk menghubungkan ke Firestore dan Google Auth milik Anda sendiri.</p>
+              
+              <div id="custom-firebase-form" class="custom-fb-form hidden">
+                <div class="form-group-sm">
+                  <label for="fb-apiKey">API Key</label>
+                  <input type="text" id="fb-apiKey" class="input-sm" placeholder="AIzaSy...">
+                </div>
+                <div class="form-group-sm">
+                  <label for="fb-authDomain">Auth Domain</label>
+                  <input type="text" id="fb-authDomain" class="input-sm" placeholder="project-id.firebaseapp.com">
+                </div>
+                <div class="form-group-sm">
+                  <label for="fb-projectId">Project ID</label>
+                  <input type="text" id="fb-projectId" class="input-sm" placeholder="project-id">
+                </div>
+                <div class="form-group-sm">
+                  <label for="fb-appId">App ID</label>
+                  <input type="text" id="fb-appId" class="input-sm" placeholder="1:12345:web:abcd...">
+                </div>
+                <div class="form-row-sm">
+                  <button id="btn-save-firebase-config" class="btn-primary btn-sm flex-1">Simpan Kredensial</button>
+                  <button id="btn-clear-firebase-config" class="btn-secondary btn-sm flex-1">Reset</button>
+                </div>
+                <p class="settings-desc-warning">Jika dinonaktifkan/kosong, aplikasi menggunakan **Demo Mode Simulasi Google Login & Mock Cloud Sync** agar Anda dapat langsung mencoba flow cloud!</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- EDIT BALANCE MODAL -->
+      <div id="modal-balance" class="modal-overlay">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>Atur Saldo Awal</h3>
+            <button class="btn-close-modal" id="btn-close-balance">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="balance-form" onsubmit="event.preventDefault();">
+              <div class="form-group">
+                <label for="input-starting-balance">Saldo Awal (Rupiah)</label>
+                <div class="input-currency-wrapper">
+                  <span class="currency-prefix">Rp</span>
+                  <input type="number" id="input-starting-balance" required min="0" placeholder="0">
+                </div>
+                <p class="settings-desc" style="margin-top: 6px;">Saldo ini akan menjadi nominal dasar sebelum ditambah pemasukan dan dikurangi pengeluaran Anda.</p>
+              </div>
+              <div class="drawer-actions">
+                <button type="button" id="btn-balance-cancel" class="btn-secondary flex-1">Batal</button>
+                <button type="submit" id="btn-balance-save" class="btn-primary flex-2">Simpan Saldo</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADD RECURRING BILL MODAL -->
+      <div id="modal-add-bill" class="modal-overlay" style="z-index: 110;">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>Tambah Tagihan Bulanan</h3>
+            <button class="btn-close-modal" id="btn-close-add-bill">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="add-bill-form" onsubmit="event.preventDefault();">
+              <div class="form-group">
+                <label for="bill-name">Nama Tagihan</label>
+                <input type="text" id="bill-name" required placeholder="Contoh: Netflix, Wifi, Bayar Kos">
+              </div>
+              <div class="form-row">
+                <div class="form-group flex-2">
+                  <label for="bill-amount">Nominal Bulanan</label>
+                  <div class="input-currency-wrapper">
+                    <span class="currency-prefix">Rp</span>
+                    <input type="number" id="bill-amount" required min="1" placeholder="0">
+                  </div>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="bill-day">Tgl Jatuh Tempo</label>
+                  <input type="number" id="bill-day" required min="1" max="31" placeholder="1-31">
+                </div>
+              </div>
+              <div class="drawer-actions" style="margin-top: 10px;">
+                <button type="button" id="btn-add-bill-cancel" class="btn-secondary flex-1">Batal</button>
+                <button type="submit" id="btn-add-bill-save" class="btn-primary flex-2">Simpan Tagihan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JS Modules -->
+  <script src="parser.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
