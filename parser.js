@@ -21,17 +21,17 @@ const Parser = {
 
   // Category Keyword Maps
   categoryKeywords: {
-    'Makanan': ['makan', 'minum', 'kopi', 'teh', 'bakso', 'nasgor', 'nasi', 'cafe', 'warteg', 'resto', 'snack', 'cemilan', 'roti', 'burger', 'pizza', 'susu', 'jajan', 'kuliner', 'es', 'mie'],
-    'Transportasi': ['bensin', 'ojek', 'grab', 'gojek', 'taxi', 'taksi', 'busway', 'kereta', 'mrt', 'lrt', 'parkir', 'tol', 'tiket', 'travel', 'angkot', 'go-ride', 'go-car', 'grabcar', 'indomaret-card'],
-    'Belanja': ['beli', 'belanja', 'kaos', 'baju', 'celana', 'sepatu', 'minimarket', 'indomaret', 'alfamart', 'tokopedia', 'shopee', 'lazada', 'supermarket', 'mall', 'tas', 'aksesoris', 'skincare', 'makeup'],
-    'Tagihan': ['listrik', 'air', 'wifi', 'internet', 'pulsa', 'kuota', 'sewa', 'kos', 'kontrakan', 'asuransi', 'pajak', 'netflix', 'spotify', 'langganan', 'cicilan', 'kredit', 'indihome'],
-    'Hiburan': ['nonton', 'bioskop', 'game', 'topup', 'liburan', 'wisata', 'konser', 'karaoke', 'buku', 'novel', 'jalan-jalan', 'healing', 'timezone'],
-    'Gaji': ['gaji', 'salary', 'upah', 'fee', 'honor', 'bonus', 'thr', 'insentif'],
-    'Investasi': ['reksadana', 'saham', 'crypto', 'emas', 'investasi', 'nabung', 'reksa dana', 'bibit'],
+    'Makanan': ['makan', 'minum', 'kopi', 'teh', 'bakso', 'nasgor', 'nasi', 'cafe', 'warteg', 'resto', 'snack', 'cemilan', 'roti', 'burger', 'pizza', 'susu', 'jajan', 'kuliner', 'es', 'mie', 'warung', 'restoran', 'sate', 'pecel', 'soto', 'rendang', 'gulai', 'seblak', 'cimol', 'siomay', 'batagor', 'jus', 'boba', 'martabak', 'donat', 'kue', 'jajanan', 'groceries', 'mcd', 'kfc', 'starbucks', 'warkop', 'angkringan', 'makanan', 'minuman'],
+    'Transportasi': ['bensin', 'ojek', 'grab', 'gojek', 'taxi', 'taksi', 'busway', 'kereta', 'mrt', 'lrt', 'parkir', 'tol', 'tiket', 'travel', 'angkot', 'go-ride', 'go-car', 'grabcar', 'indomaret-card', 'e-toll', 'etoll', 'pertalite', 'pertamax', 'solar', 'shell', 'bp', 'parkiran', 'commuterline', 'krl', 'damri', 'maxim', 'indrive', 'pesawat', 'shuttle', 'ojol'],
+    'Belanja': ['beli', 'belanja', 'kaos', 'baju', 'celana', 'sepatu', 'minimarket', 'indomaret', 'alfamart', 'tokopedia', 'shopee', 'lazada', 'supermarket', 'mall', 'tas', 'aksesoris', 'skincare', 'makeup', 'tokped', 'bukalapak', 'tiktok', 'pakaian', 'jersey', 'jaket', 'topi', 'kacamata', 'dompet', 'kosmetik', 'sabun', 'shampoo', 'pasta gigi', 'sembako', 'beras', 'minyak', 'gula', 'sayur', 'buah', 'pasar', 'transmart', 'hypermart', 'superindo'],
+    'Tagihan': ['listrik', 'air', 'wifi', 'internet', 'pulsa', 'kuota', 'sewa', 'kos', 'kontrakan', 'asuransi', 'pajak', 'netflix', 'spotify', 'langganan', 'cicilan', 'kredit', 'indihome', 'pln', 'pdam', 'bpjs', 'kartu kredit', 'biznet', 'first media', 'telkom', 'domain', 'hosting', 'cloud', 'kosan', 'youtube premium', 'disney'],
+    'Hiburan': ['nonton', 'bioskop', 'game', 'topup', 'liburan', 'wisata', 'konser', 'karaoke', 'buku', 'novel', 'jalan-jalan', 'healing', 'timezone', 'cinema', 'cgv', 'xxi', 'steam', 'mobile legends', 'pubg', 'rekreasi', 'pantai', 'museum', 'taman', 'komik'],
+    'Gaji': ['gaji', 'salary', 'upah', 'fee', 'honor', 'bonus', 'thr', 'insentif', 'gajian', 'payroll', 'remunerasi', 'komisi', 'proyek', 'freelance', 'sampingan'],
+    'Investasi': ['reksadana', 'saham', 'crypto', 'emas', 'investasi', 'nabung', 'reksa dana', 'bibit', 'bitcoin', 'ethereum', 'bareksa', 'pluang', 'deposito', 'obligasi', 'ori', 'sbr', 'logam mulia', 'tabungan'],
   },
 
   // Keywords to determine Pemasukan (Income)
-  incomeKeywords: ['gaji', 'dapat', 'terima', 'pemasukan', 'masuk', 'bonus', 'untung', 'jual', 'transferan', 'angpao', 'hibah', 'refund', 'kembalian', 'upah', 'thr', 'insentif', 'sedekah-masuk', 'menang'],
+  incomeKeywords: ['gaji', 'dapat', 'terima', 'pemasukan', 'masuk', 'bonus', 'untung', 'jual', 'transferan', 'angpao', 'hibah', 'refund', 'kembalian', 'upah', 'thr', 'insentif', 'sedekah-masuk', 'menang', 'gajian', 'dijual', 'cashback', 'komisi', 'freelance', 'proyek', 'sampingan', 'cuan', 'klaim'],
 
   /**
    * Main parse function
@@ -143,7 +143,102 @@ const Parser = {
     let date = this.formatDate(today);
     let datePhrase = '';
 
-    // Relative dates
+    // 1. Check "X hari/minggu/bulan lalu" or "seminggu/sebulan lalu"
+    const relativeAgoPattern = /\b(?:(\d+|satu|dua|tiga|empat|lima|enam|tujuh|delapan|sembilan|sepuluh)\s+)?(hari|minggu|bulan)\s*(?:yang\s+)?lalu\b/i;
+    let agoMatch = text.match(relativeAgoPattern);
+    
+    if (!agoMatch) {
+      // Try matching seminggu / sebulan lalu
+      const seAgoPattern = /\b(seminggu|sebulan)\s*(?:yang\s+)?lalu\b/i;
+      const seMatch = text.match(seAgoPattern);
+      if (seMatch) {
+        datePhrase = seMatch[0];
+        const unit = seMatch[1].toLowerCase();
+        const pastDate = new Date(today);
+        if (unit === 'seminggu') {
+          pastDate.setDate(today.getDate() - 7);
+        } else if (unit === 'sebulan') {
+          pastDate.setMonth(today.getMonth() - 1);
+        }
+        date = this.formatDate(pastDate);
+        return { date, datePhrase };
+      }
+    } else {
+      datePhrase = agoMatch[0];
+      const qtyStr = agoMatch[1];
+      const unit = agoMatch[2].toLowerCase();
+      
+      let qty = 1;
+      if (qtyStr) {
+        if (/^\d+$/.test(qtyStr)) {
+          qty = parseInt(qtyStr);
+        } else {
+          const words = {
+            'satu': 1, 'dua': 2, 'tiga': 3, 'empat': 4, 'lima': 5,
+            'enam': 6, 'tujuh': 7, 'delapan': 8, 'sembilan': 9, 'sepuluh': 10
+          };
+          qty = words[qtyStr.toLowerCase()] || 1;
+        }
+      }
+      
+      const pastDate = new Date(today);
+      if (unit === 'hari') {
+        pastDate.setDate(today.getDate() - qty);
+      } else if (unit === 'minggu') {
+        pastDate.setDate(today.getDate() - (qty * 7));
+      } else if (unit === 'bulan') {
+        pastDate.setMonth(today.getMonth() - qty);
+      }
+      date = this.formatDate(pastDate);
+      return { date, datePhrase };
+    }
+
+    // 2. Day of week relative parsing (e.g. "hari jumat kemarin", "jumat kemarin", "jumat lalu", "hari jumat", etc.)
+    const daysMap = {
+      'minggu': 0, 'ahad': 0,
+      'senin': 1,
+      'selasa': 2,
+      'rabu': 3,
+      'kamis': 4,
+      'jumat': 5,
+      'sabtu': 6
+    };
+    const dayOfWeekPattern = /\b(?:hari\s+)?(senin|selasa|rabu|kamis|jumat|sabtu|minggu|ahad)(?:\s+(kemarin|lalu|minggu\s+lalu))?\b/i;
+    const dayMatch = text.match(dayOfWeekPattern);
+    
+    if (dayMatch) {
+      datePhrase = dayMatch[0];
+      const dayName = dayMatch[1].toLowerCase();
+      const suffix = dayMatch[2] ? dayMatch[2].toLowerCase() : '';
+      const targetDayIndex = daysMap[dayName];
+      const todayDayIndex = today.getDay();
+      
+      let diff = todayDayIndex - targetDayIndex;
+      if (diff < 0) {
+        diff += 7;
+      }
+      
+      if (suffix === 'minggu lalu') {
+        diff += 7;
+      } else if ((suffix === 'kemarin' || suffix === 'lalu') && diff === 0) {
+        diff += 7;
+      }
+      
+      const targetDate = new Date(today);
+      targetDate.setDate(today.getDate() - diff);
+      date = this.formatDate(targetDate);
+      return { date, datePhrase };
+    }
+
+    // 3. Special relative terms (e.g., "kemarin lusa", "kemarin", "lusa", "hari ini")
+    if (/\bkemarin\s*[- ]\s*lusa\b/i.test(text)) {
+      datePhrase = text.match(/\bkemarin\s*[- ]\s*lusa\b/i)[0];
+      const pastDate = new Date(today);
+      pastDate.setDate(today.getDate() - 2);
+      date = this.formatDate(pastDate);
+      return { date, datePhrase };
+    }
+
     if (/\bhari\s*ini\b/i.test(text)) {
       datePhrase = text.match(/\bhari\s*ini\b/i)[0];
       date = this.formatDate(today);
@@ -166,34 +261,53 @@ const Parser = {
       return { date, datePhrase };
     }
 
-    // Pattern: "tanggal 14 juni 2026", "tgl 14 juni", "tanggal 14", "tgl 14"
-    const datePattern = /(?:tanggal|tgl)\s*(\d{1,2})(?:\s*([a-z]+))?(?:\s*(\d{4}))?/i;
-    const match = text.match(datePattern);
-
-    if (match) {
-      datePhrase = match[0];
-      const day = parseInt(match[1]);
-      let month = today.getMonth();
+    // 4. Pattern with optional "tanggal/tgl" but REQUIRED month name: "14 juni 2026", "tgl 14 juni"
+    const dateWithMonthPattern = /(?:tanggal|tgl)?\s*(\d{1,2})\s+([a-z]+)(?:\s+(\d{4}))?/i;
+    let monthMatch = text.match(dateWithMonthPattern);
+    
+    if (monthMatch && this.months[monthMatch[2].toLowerCase()] !== undefined) {
+      datePhrase = monthMatch[0];
+      const day = parseInt(monthMatch[1]);
+      const month = this.months[monthMatch[2].toLowerCase()];
       let year = today.getFullYear();
-
-      // Check month if specified
-      if (match[2]) {
-        const monthName = match[2].toLowerCase();
-        if (this.months[monthName] !== undefined) {
-          month = this.months[monthName];
-        }
+      if (monthMatch[3]) {
+        year = parseInt(monthMatch[3]);
       }
-
-      // Check year if specified
-      if (match[3]) {
-        year = parseInt(match[3]);
-      }
-
-      // Construct final date safely
       const parsedDate = new Date(year, month, day);
-      // Double check date parts are valid
       if (!isNaN(parsedDate.getTime())) {
         date = this.formatDate(parsedDate);
+        return { date, datePhrase };
+      }
+    }
+
+    // 5. Month terms: "awal/pertengahan/akhir bulan"
+    if (/\b(?:awal|pertengahan|akhir)\s*bulan\b/i.test(text)) {
+      const matchTerm = text.match(/\b(awal|pertengahan|akhir)\s*bulan\b/i);
+      datePhrase = matchTerm[0];
+      const term = matchTerm[1].toLowerCase();
+      const targetDate = new Date(today);
+      if (term === 'awal') {
+        targetDate.setDate(1);
+      } else if (term === 'pertengahan') {
+        targetDate.setDate(15);
+      } else if (term === 'akhir') {
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        targetDate.setDate(nextMonth.getDate());
+      }
+      date = this.formatDate(targetDate);
+      return { date, datePhrase };
+    }
+
+    // 6. Fallback pattern: "tanggal 14", "tgl 14" (without month name, defaults to current month)
+    const dateNoMonthPattern = /(?:tanggal|tgl)\s*(\d{1,2})\b/i;
+    const noMonthMatch = text.match(dateNoMonthPattern);
+    if (noMonthMatch) {
+      datePhrase = noMonthMatch[0];
+      const day = parseInt(noMonthMatch[1]);
+      const parsedDate = new Date(today.getFullYear(), today.getMonth(), day);
+      if (!isNaN(parsedDate.getTime())) {
+        date = this.formatDate(parsedDate);
+        return { date, datePhrase };
       }
     }
 
