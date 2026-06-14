@@ -80,7 +80,12 @@
             <div class="summary-balance-section" id="btn-edit-balance" title="Atur Saldo Awal" style="cursor: pointer;">
               <span class="label">Total Saldo Anda <span class="material-icons-round"
                   style="font-size: 14px; vertical-align: middle; margin-left: 2px; opacity: 0.8;">edit</span></span>
-              <h2 id="total-balance" class="balance-value">Rp 0</h2>
+              <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <h2 id="total-balance" class="balance-value">Rp 0</h2>
+                <button id="btn-toggle-balance-visibility" style="background: none; border: none; color: white; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; opacity: 0.8; transition: opacity 0.2s;" title="Sembunyikan/Tampilkan Saldo">
+                  <span class="material-icons-round" id="eye-icon" style="font-size: 20px;">visibility</span>
+                </button>
+              </div>
             </div>
             <div class="summary-flow-section">
               <div class="flow-item income">
@@ -145,6 +150,17 @@
               <button class="chip active" data-filter="all">Semua</button>
               <button class="chip" data-filter="income">Pemasukan</button>
               <button class="chip" data-filter="expense">Pengeluaran</button>
+            </div>
+
+            <!-- Month Selector for History -->
+            <div class="month-selector" style="margin-top: 10px; margin-bottom: 12px; justify-content: space-between; display: flex; width: 100%;">
+              <button id="btn-prev-month-home" class="month-nav-btn" title="Bulan Sebelumnya">
+                <span class="material-icons-round">chevron_left</span>
+              </button>
+              <span id="current-month-display-home" class="current-month-name" style="cursor: pointer; font-size: 13px; font-weight: 600;" title="Klik untuk menampilkan Semua Bulan">Semua Bulan</span>
+              <button id="btn-next-month-home" class="month-nav-btn" title="Bulan Berikutnya">
+                <span class="material-icons-round">chevron_right</span>
+              </button>
             </div>
 
             <!-- TRANSACTION LIST WITH SKELETON LOADER -->

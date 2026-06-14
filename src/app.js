@@ -30,6 +30,8 @@ class UangNihApp {
 
     // Date view for statistics (defaults to current month: June 2026)
     this.currentDate = new Date(2026, 5, 14); // June 14, 2026
+    this.homeDate = null; // null for "Semua Bulan" (All Months) by default
+    this.isBalanceHidden = localStorage.getItem('uangnih_is_balance_hidden') === 'true';
     this.activeChart = 'categories';
 
     // Speech Recognition properties
@@ -88,6 +90,9 @@ class UangNihApp {
       filterChips: document.querySelectorAll('.filter-chips .chip'),
       transactionList: document.getElementById('transaction-list'),
       transactionsSkeleton: document.getElementById('transactions-skeleton'),
+      btnPrevMonthHome: document.getElementById('btn-prev-month-home'),
+      btnNextMonthHome: document.getElementById('btn-next-month-home'),
+      currentMonthDisplayHome: document.getElementById('current-month-display-home'),
 
       // Stats Elements
       btnPrevMonth: document.getElementById('btn-prev-month'),
@@ -149,8 +154,10 @@ class UangNihApp {
 
       btnFab: document.getElementById('btn-fab'),
 
-      // Balance Modal
+      // Balance Modal & Visibility Toggle
       btnEditBalance: document.getElementById('btn-edit-balance'),
+      btnToggleBalanceVisibility: document.getElementById('btn-toggle-balance-visibility'),
+      eyeIcon: document.getElementById('eye-icon'),
       modalBalance: document.getElementById('modal-balance'),
       btnCloseBalance: document.getElementById('btn-close-balance'),
       btnBalanceCancel: document.getElementById('btn-balance-cancel'),
@@ -205,6 +212,15 @@ class UangNihApp {
         this.activeFilter = e.target.getAttribute('data-filter');
         this.renderTransactions();
       });
+    });
+
+    // Month Selector for Homepage History
+    this.el.btnPrevMonthHome.addEventListener('click', () => this.changeHomeMonth(-1));
+    this.el.btnNextMonthHome.addEventListener('click', () => this.changeHomeMonth(1));
+    this.el.currentMonthDisplayHome.addEventListener('click', () => {
+      this.homeDate = null;
+      this.updateHomeMonthDisplay();
+      this.renderTransactions();
     });
 
     // NLP Input
@@ -267,6 +283,10 @@ class UangNihApp {
 
     // Balance Edit Buttons
     this.el.btnEditBalance.addEventListener('click', () => this.showBalanceModal());
+    this.el.btnToggleBalanceVisibility.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleBalanceVisibility();
+    });
     this.el.btnCloseBalance.addEventListener('click', () => this.hideModal('balance'));
     this.el.btnBalanceCancel.addEventListener('click', () => this.hideModal('balance'));
     this.el.balanceForm.addEventListener('submit', () => this.saveStartingBalance());
@@ -296,6 +316,8 @@ class UangNihApp {
 
     // Sync UI elements
     this.updateUserUI();
+    this.updateHomeMonthDisplay();
+    this.updateBalanceVisibilityUI();
     this.switchView('home');
   }
 
@@ -1065,13 +1087,19 @@ class UangNihApp {
 
     const balanceSum = this.startingBalance + incomeSum - expenseSum;
 
-    // Animate numbers/text mapping
-    this.el.totalBalance.textContent = this.formatIDR(balanceSum);
-    this.el.totalIncome.textContent = this.formatIDR(incomeSum);
-    this.el.totalExpense.textContent = this.formatIDR(expenseSum);
+    // Animate numbers/text mapping or hide
+    if (this.isBalanceHidden) {
+      this.el.totalBalance.textContent = 'Rp ••••••';
+      this.el.totalIncome.textContent = 'Rp ••••••';
+      this.el.totalExpense.textContent = 'Rp ••••••';
+    } else {
+      this.el.totalBalance.textContent = this.formatIDR(balanceSum);
+      this.el.totalIncome.textContent = this.formatIDR(incomeSum);
+      this.el.totalExpense.textContent = this.formatIDR(expenseSum);
+    }
 
     // Apply color values to balance based on positive/negative
-    if (balanceSum < 0) {
+    if (balanceSum < 0 && !this.isBalanceHidden) {
       this.el.totalBalance.style.color = '#fee2e2'; // Light red indicator
     } else {
       this.el.totalBalance.style.color = '#ffffff';
@@ -1093,6 +1121,16 @@ class UangNihApp {
         const matchesCat = t.category.toLowerCase().includes(this.searchQuery);
         const matchesAmt = String(t.amount).includes(this.searchQuery);
         return matchesDesc || matchesCat || matchesAmt;
+      }
+
+      // 3. Filter by selected homepage month
+      if (this.homeDate !== null) {
+        const tDate = new Date(t.date);
+        const filterMonth = this.homeDate.getMonth();
+        const filterYear = this.homeDate.getFullYear();
+        if (tDate.getMonth() !== filterMonth || tDate.getFullYear() !== filterYear) {
+          return false;
+        }
       }
       return true;
     });
@@ -1248,6 +1286,41 @@ class UangNihApp {
   changeMonth(direction) {
     this.currentDate.setMonth(this.currentDate.getMonth() + direction);
     this.updateStatsView();
+  }
+
+  changeHomeMonth(direction) {
+    if (this.homeDate === null) {
+      // If currently displaying all months, select the current date (June 2026)
+      this.homeDate = new Date(this.currentDate.getTime());
+    } else {
+      this.homeDate.setMonth(this.homeDate.getMonth() + direction);
+    }
+    this.updateHomeMonthDisplay();
+    this.renderTransactions();
+  }
+
+  updateHomeMonthDisplay() {
+    if (this.homeDate === null) {
+      this.el.currentMonthDisplayHome.textContent = 'Semua Bulan';
+      this.el.currentMonthDisplayHome.style.color = 'var(--text-secondary)';
+    } else {
+      const options = { month: 'long', year: 'numeric' };
+      this.el.currentMonthDisplayHome.textContent = this.homeDate.toLocaleDateString('id-ID', options);
+      this.el.currentMonthDisplayHome.style.color = 'var(--primary)'; // highlight active filter
+    }
+  }
+
+  toggleBalanceVisibility() {
+    this.isBalanceHidden = !this.isBalanceHidden;
+    localStorage.setItem('uangnih_is_balance_hidden', this.isBalanceHidden);
+    this.updateBalanceVisibilityUI();
+    this.renderDashboard();
+  }
+
+  updateBalanceVisibilityUI() {
+    if (this.el.eyeIcon) {
+      this.el.eyeIcon.textContent = this.isBalanceHidden ? 'visibility_off' : 'visibility';
+    }
   }
 
   switchChart() {
