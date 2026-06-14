@@ -543,7 +543,8 @@ class UangNihApp {
             amount: b.amount,
             category: 'Tagihan',
             date: transDateStr,
-            recurringBillId: b.id
+            recurringBillId: b.id,
+            time: '00:00'
           };
 
           this.saveTransaction(newTrans);
@@ -936,12 +937,15 @@ class UangNihApp {
 
   savePreviewTransaction() {
     const isIncome = this.el.previewTypeIncome.classList.contains('active');
+    const now = new Date();
+    const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
     const trans = {
       type: isIncome ? 'income' : 'expense',
       description: this.el.previewDesc.value.trim() || 'Transaksi Baru',
       amount: parseInt(this.el.previewAmount.value) || 0,
       category: this.el.previewCategory.value,
-      date: this.el.previewDate.value || Parser.formatDate(new Date())
+      date: this.el.previewDate.value || Parser.formatDate(now),
+      time: timeStr
     };
 
     if (trans.amount <= 0) {
@@ -1137,7 +1141,7 @@ class UangNihApp {
               <div class="t-details">
                 <span class="t-title">${t.description}</span>
                 <span class="t-subtitle">
-                  ${t.category} <span class="bullet">•</span> ${this.formatTime(t.date)}
+                  ${t.category} <span class="bullet">•</span> ${this.formatTime(t.date, t.time)}
                 </span>
               </div>
             </div>
@@ -1195,7 +1199,7 @@ class UangNihApp {
         </div>
         <div class="detail-info-row">
           <span class="detail-info-label">Tanggal</span>
-          <span class="detail-info-value">${dateFormatted}</span>
+          <span class="detail-info-value">${dateFormatted} • ${t.time || '12:00'}</span>
         </div>
       </div>
     `;
@@ -1538,7 +1542,8 @@ class UangNihApp {
                 description: item.description,
                 amount: item.amount,
                 category: item.category || 'Lain-lain',
-                date: item.date
+                date: item.date,
+                time: item.time || '12:00'
               };
             });
 
@@ -1577,8 +1582,8 @@ class UangNihApp {
     return 'Rp ' + Math.abs(value).toLocaleString('id-ID');
   }
 
-  formatTime(dateStr) {
-    // Return mock time or default placeholder for simplicity
+  formatTime(dateStr, timeStr) {
+    if (timeStr) return timeStr;
     return "12:00";
   }
 
@@ -1627,14 +1632,14 @@ class UangNihApp {
 
   getInitialDummyData() {
     return [
-      { id: 'd1', type: 'expense', description: 'Beli Kopi Susu', amount: 22000, category: 'Makanan', date: '2026-06-14' },
-      { id: 'd2', type: 'expense', description: 'Gojek ke Kantor', amount: 15000, category: 'Transportasi', date: '2026-06-14' },
-      { id: 'd3', type: 'income', description: 'Gaji Bulanan', amount: 6500000, category: 'Gaji', date: '2026-06-01' },
-      { id: 'd4', type: 'expense', description: 'Langganan Internet Wifi', amount: 350000, category: 'Tagihan', date: '2026-06-05' },
-      { id: 'd5', type: 'expense', description: 'Makan Malam Seafood', amount: 120000, category: 'Makanan', date: '2026-06-13' },
-      { id: 'd6', type: 'expense', description: 'Beli Sepatu Baru', amount: 450000, category: 'Belanja', date: '2026-06-10' },
-      { id: 'd7', type: 'expense', description: 'Tiket Bioskop', amount: 50000, category: 'Hiburan', date: '2026-06-08' },
-      { id: 'd8', type: 'income', description: 'Keuntungan Jual Saham', amount: 850000, category: 'Investasi', date: '2026-06-12' },
+      { id: 'd1', type: 'expense', description: 'Beli Kopi Susu', amount: 22000, category: 'Makanan', date: '2026-06-14', time: '14:25' },
+      { id: 'd2', type: 'expense', description: 'Gojek ke Kantor', amount: 15000, category: 'Transportasi', date: '2026-06-14', time: '08:15' },
+      { id: 'd3', type: 'income', description: 'Gaji Bulanan', amount: 6500000, category: 'Gaji', date: '2026-06-01', time: '09:00' },
+      { id: 'd4', type: 'expense', description: 'Langganan Internet Wifi', amount: 350000, category: 'Tagihan', date: '2026-06-05', time: '10:00' },
+      { id: 'd5', type: 'expense', description: 'Makan Malam Seafood', amount: 120000, category: 'Makanan', date: '2026-06-13', time: '19:30' },
+      { id: 'd6', type: 'expense', description: 'Beli Sepatu Baru', amount: 450000, category: 'Belanja', date: '2026-06-10', time: '16:45' },
+      { id: 'd7', type: 'expense', description: 'Tiket Bioskop', amount: 50000, category: 'Hiburan', date: '2026-06-08', time: '21:15' },
+      { id: 'd8', type: 'income', description: 'Keuntungan Jual Saham', amount: 850000, category: 'Investasi', date: '2026-06-12', time: '11:30' },
     ];
   }
 }
