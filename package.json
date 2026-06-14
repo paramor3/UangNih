@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "build": "javascript-obfuscator src/app.js --output app.js --compact true --self-defending true --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --transform-object-keys true && javascript-obfuscator src/parser.js --output parser.js --compact true --self-defending true --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --transform-object-keys true"
+    "build": "node build.js"
   },
   "repository": {
     "type": "git",
