@@ -22,12 +22,12 @@ class UangNihApp {
     this.isDemoMode = false; // False by default to connect to the real Firebase config
     this.startingBalance = 0;
     this.recurringBills = [];
-    
+
     // UI State
     this.currentView = 'home';
     this.activeFilter = 'all';
     this.searchQuery = '';
-    
+
     // Date view for statistics (defaults to current month: June 2026)
     this.currentDate = new Date(2026, 5, 14); // June 14, 2026
     this.activeChart = 'categories';
@@ -44,7 +44,7 @@ class UangNihApp {
 
     // DOM Elements
     this.initDOMElements();
-    
+
     // Bind Event Listeners
     this.bindEvents();
 
@@ -58,11 +58,11 @@ class UangNihApp {
       pageHome: document.getElementById('page-home'),
       pageStats: document.getElementById('page-stats'),
       appContent: document.getElementById('app-content'),
-      
+
       // Nav buttons
       navHome: document.getElementById('nav-btn-home'),
       navStats: document.getElementById('nav-btn-stats'),
-      
+
       // Header & banners
       btnProfile: document.getElementById('btn-profile'),
       profileIcon: document.getElementById('profile-icon'),
@@ -75,12 +75,12 @@ class UangNihApp {
       totalBalance: document.getElementById('total-balance'),
       totalIncome: document.getElementById('total-income'),
       totalExpense: document.getElementById('total-expense'),
-      
+
       // Quick NLP Input
       nlpInput: document.getElementById('nlp-input'),
       btnMic: document.getElementById('btn-mic'),
       btnSubmitNlp: document.getElementById('btn-submit-nlp'),
-      
+
       // Transactions Riwayat
       btnSearchToggle: document.getElementById('btn-search-toggle'),
       searchBarContainer: document.getElementById('search-bar-container'),
@@ -304,7 +304,7 @@ class UangNihApp {
     this.currentView = view;
     this.el.navHome.classList.toggle('active', view === 'home');
     this.el.navStats.classList.toggle('active', view === 'stats');
-    
+
     this.el.pageHome.classList.toggle('active', view === 'home');
     this.el.pageStats.classList.toggle('active', view === 'stats');
 
@@ -389,8 +389,8 @@ class UangNihApp {
         });
     } else {
       // Local or Demo storage key
-      const storageKey = this.user 
-        ? `uangnih_demo_starting_balance_${this.user.uid}` 
+      const storageKey = this.user
+        ? `uangnih_demo_starting_balance_${this.user.uid}`
         : 'uangnih_starting_balance';
       localStorage.setItem(storageKey, val);
     }
@@ -442,11 +442,11 @@ class UangNihApp {
       const billsKey = this.user
         ? `uangnih_demo_recurring_bills_${this.user.uid}`
         : 'uangnih_recurring_bills';
-      
+
       bill.id = 'bill_' + Date.now() + Math.random().toString(36).substr(2, 5);
       this.recurringBills.push(bill);
       localStorage.setItem(billsKey, JSON.stringify(this.recurringBills));
-      
+
       this.hideModal('add-bill');
       this.renderRecurringBills();
       this.checkAndApplyRecurringBills();
@@ -472,10 +472,10 @@ class UangNihApp {
       const billsKey = this.user
         ? `uangnih_demo_recurring_bills_${this.user.uid}`
         : 'uangnih_recurring_bills';
-      
+
       this.recurringBills = this.recurringBills.filter(b => b.id !== id);
       localStorage.setItem(billsKey, JSON.stringify(this.recurringBills));
-      
+
       this.renderRecurringBills();
     }
   }
@@ -536,7 +536,7 @@ class UangNihApp {
         if (!alreadyLogged) {
           // Auto create transaction
           const transDateStr = `${curYear}-${String(curMonth + 1).padStart(2, '0')}-${String(scheduledDay).padStart(2, '0')}`;
-          
+
           const newTrans = {
             type: 'expense',
             description: `[Tagihan] ${b.name}`,
@@ -650,13 +650,13 @@ class UangNihApp {
             ...doc.data()
           });
         });
-        
+
         // Cache in LocalStorage just in case they lose connection later
         localStorage.setItem(`uangnih_cache_${this.user.uid}`, JSON.stringify(this.transactions));
-        
+
         this.showSkeletonLoading(false);
         this.el.syncIndicator.className = 'sync-dot online';
-        
+
         // Render view
         this.renderDashboard();
         this.renderTransactions();
@@ -679,29 +679,29 @@ class UangNihApp {
   // ================= GOOGLE LOGIN FLOW =================
   loginGoogle() {
     this.hideModal('profile');
-    
+
     if (this.isDemoMode) {
       // SIMULATE Google Sign-in for seamless testing out-of-the-box
       this.showSkeletonLoading(true);
-      
+
       setTimeout(() => {
         const mockName = prompt("Masukkan nama Anda untuk Demo Mode:", "Budi Santoso");
         if (!mockName) {
           this.showSkeletonLoading(false);
           return;
         }
-        
+
         this.user = {
           uid: 'demo_user_123',
           displayName: mockName,
           email: `${mockName.toLowerCase().replace(/\s+/g, '')}@gmail.com`,
           photoURL: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80'
         };
-        
+
         localStorage.setItem('uangnih_user_session', JSON.stringify(this.user));
         this.el.syncIndicator.className = 'sync-dot online';
         this.el.syncIndicator.title = 'Terhubung dengan Demo Cloud Sync';
-        
+
         // Load data from mock cloud storage
         this.loadTransactions();
         this.showSkeletonLoading(false);
@@ -746,7 +746,7 @@ class UangNihApp {
       this.el.offlineBanner.classList.add('hidden');
       this.el.userInfoUnlogged.classList.add('hidden');
       this.el.userInfoLogged.classList.remove('hidden');
-      
+
       this.el.userAvatar.src = this.user.photoURL || 'https://via.placeholder.com/150';
       this.el.userDisplayName.textContent = this.user.displayName;
       this.el.userEmail.textContent = this.user.email;
@@ -781,8 +781,8 @@ class UangNihApp {
     this.showSkeletonLoading(true);
 
     // Load starting balance
-    const balanceKey = this.user 
-      ? `uangnih_demo_starting_balance_${this.user.uid}` 
+    const balanceKey = this.user
+      ? `uangnih_demo_starting_balance_${this.user.uid}`
       : 'uangnih_starting_balance';
     this.startingBalance = parseInt(localStorage.getItem(balanceKey)) || 0;
 
@@ -792,14 +792,14 @@ class UangNihApp {
       : 'uangnih_recurring_bills';
     const storedBills = localStorage.getItem(billsKey);
     this.recurringBills = storedBills ? JSON.parse(storedBills) : [];
-    
+
     // Determine storage key depending on user auth state (demo mode or offline mode)
-    const storageKey = this.user 
-      ? `uangnih_demo_cloud_${this.user.uid}` 
+    const storageKey = this.user
+      ? `uangnih_demo_cloud_${this.user.uid}`
       : 'uangnih_local_transactions';
-      
+
     const stored = localStorage.getItem(storageKey);
-    
+
     setTimeout(() => {
       if (stored) {
         this.transactions = JSON.parse(stored);
@@ -808,7 +808,7 @@ class UangNihApp {
         this.transactions = this.getInitialDummyData();
         localStorage.setItem(storageKey, JSON.stringify(this.transactions));
       }
-      
+
       this.showSkeletonLoading(false);
       this.renderDashboard();
       this.renderTransactions();
@@ -830,19 +830,19 @@ class UangNihApp {
         });
     } else {
       // Local or Demo storage key
-      const storageKey = this.user 
-        ? `uangnih_demo_cloud_${this.user.uid}` 
+      const storageKey = this.user
+        ? `uangnih_demo_cloud_${this.user.uid}`
         : 'uangnih_local_transactions';
 
       // Generate random ID for local transaction
       newTransaction.id = 'loc_' + Date.now() + Math.random().toString(36).substr(2, 5);
-      
+
       this.transactions.unshift(newTransaction);
       // Sort by date descending
       this.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       localStorage.setItem(storageKey, JSON.stringify(this.transactions));
-      
+
       this.renderDashboard();
       this.renderTransactions();
       if (this.currentView === 'stats') this.updateStatsView();
@@ -865,13 +865,13 @@ class UangNihApp {
         });
     } else {
       // Local/Demo mock deletion
-      const storageKey = this.user 
-        ? `uangnih_demo_cloud_${this.user.uid}` 
+      const storageKey = this.user
+        ? `uangnih_demo_cloud_${this.user.uid}`
         : 'uangnih_local_transactions';
 
       this.transactions = this.transactions.filter(t => t.id !== id);
       localStorage.setItem(storageKey, JSON.stringify(this.transactions));
-      
+
       this.renderDashboard();
       this.renderTransactions();
       if (this.currentView === 'stats') this.updateStatsView();
@@ -912,7 +912,7 @@ class UangNihApp {
     this.el.previewDate.value = parsed.date;
 
     this.showDrawer('preview');
-    
+
     // Auto focus amount if it's empty
     if (!parsed.amount) {
       setTimeout(() => this.el.previewAmount.focus(), 300);
@@ -951,7 +951,7 @@ class UangNihApp {
 
     this.saveTransaction(trans);
     this.hideDrawer('preview');
-    
+
     // Reset inputs
     this.el.nlpInput.value = '';
   }
@@ -1025,7 +1025,7 @@ class UangNihApp {
 
   stopVoiceRecognition(isCancelled = false) {
     if (!this.recognition || !this.isRecording) return;
-    
+
     const text = this.el.voiceTranscriptText.textContent;
     this.recognition.stop();
     this.isRecording = false;
@@ -1077,7 +1077,7 @@ class UangNihApp {
   renderTransactions() {
     // Filter and Search logic
     let listHTML = '';
-    
+
     const filtered = this.transactions.filter(t => {
       // 1. Filter by Active Tab Segment
       if (this.activeFilter === 'income' && t.type !== 'income') return false;
@@ -1120,7 +1120,7 @@ class UangNihApp {
     Object.keys(groups).sort((a, b) => new Date(b) - new Date(a)).forEach(dateStr => {
       const dateHeaderLabel = this.formatDateHeader(dateStr);
       listHTML += `<div class="date-group"><div class="date-header">${dateHeaderLabel}</div>`;
-      
+
       groups[dateStr].forEach(t => {
         const sign = t.type === 'income' ? '+' : '-';
         const typeClass = t.type;
@@ -1150,7 +1150,7 @@ class UangNihApp {
           </div>
         `;
       });
-      
+
       listHTML += `</div>`;
     });
 
@@ -1212,7 +1212,7 @@ class UangNihApp {
     this.el.currentMonthDisplay.textContent = this.currentDate.toLocaleDateString('id-ID', options);
 
     const mTransactions = this.getMonthTransactions();
-    
+
     // Calculate Monthly summary
     let mIncome = 0;
     let mExpense = 0;
@@ -1260,7 +1260,7 @@ class UangNihApp {
     this.el.donutTotal.textContent = this.formatIDR(totalExpense);
 
     const categorySummary = {};
-    
+
     // Summarize only expenses for donut breakdown
     mTransactions.forEach(t => {
       if (t.type === 'expense') {
@@ -1280,7 +1280,7 @@ class UangNihApp {
     }
 
     // Sort categories by expenditure amount descending
-    const sortedCategories = categories.sort((a,b) => categorySummary[b] - categorySummary[a]);
+    const sortedCategories = categories.sort((a, b) => categorySummary[b] - categorySummary[a]);
 
     // Circumference of a circle with R=35 is 2 * PI * 35 = 219.9
     const radius = 35;
@@ -1306,7 +1306,7 @@ class UangNihApp {
       slice.setAttribute('stroke', color);
       slice.setAttribute('stroke-dasharray', `${strokeLength} ${circ}`);
       slice.setAttribute('stroke-dashoffset', String(strokeOffset));
-      
+
       svg.appendChild(slice);
 
       cumulativePercent += pct;
@@ -1367,7 +1367,7 @@ class UangNihApp {
 
     weeklyData.forEach((w, index) => {
       const xCenter = startX + (index * colWidth);
-      
+
       // Calculate heights relative to highest value (scaled to 100 max height)
       const incomeHeight = (w.income / maxTotal) * chartHeight;
       const expenseHeight = (w.expense / maxTotal) * chartHeight;
@@ -1416,7 +1416,7 @@ class UangNihApp {
 
   renderCategoryBreakdown(mTransactions, totalExpense) {
     const categorySummary = {};
-    
+
     // Group only expenses
     mTransactions.forEach(t => {
       if (t.type === 'expense') {
@@ -1431,7 +1431,7 @@ class UangNihApp {
     }
 
     // Sort descending
-    const sorted = categories.sort((a,b) => categorySummary[b] - categorySummary[a]);
+    const sorted = categories.sort((a, b) => categorySummary[b] - categorySummary[a]);
     let breakdownHTML = '';
 
     sorted.forEach(cat => {
@@ -1472,9 +1472,9 @@ class UangNihApp {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.transactions, null, 2));
     const dlAnchorElem = document.createElement('a');
     dlAnchorElem.setAttribute("href", dataStr);
-    
+
     // Filename incorporates timestamp
-    const dateStr = new Date().toISOString().slice(0,10);
+    const dateStr = new Date().toISOString().slice(0, 10);
     dlAnchorElem.setAttribute("download", `UangNih_Backup_${dateStr}.json`);
     dlAnchorElem.click();
   }
@@ -1487,7 +1487,7 @@ class UangNihApp {
     reader.onload = (e) => {
       try {
         const importedData = JSON.parse(e.target.result);
-        
+
         if (!Array.isArray(importedData)) {
           throw new Error("Format file JSON tidak valid. Data harus berupa array transaksi.");
         }
@@ -1499,9 +1499,9 @@ class UangNihApp {
         }
 
         if (confirm(`Apakah Anda yakin ingin mengimpor ${importedData.length} transaksi? Tindakan ini akan menimpa/menambah daftar transaksi Anda.`)) {
-          
+
           this.showSkeletonLoading(true);
-          
+
           // Re-populate data based on active database target
           if (this.user && !this.isDemoMode) {
             // Upload items sequentially to Cloud Firestore
@@ -1514,7 +1514,7 @@ class UangNihApp {
               batch.set(ref, cleanItem);
               count++;
             });
-            
+
             batch.commit().then(() => {
               alert(`Berhasil mengimpor ${count} data transaksi ke Firebase Cloud!`);
               this.showSkeletonLoading(false);
@@ -1523,11 +1523,11 @@ class UangNihApp {
               alert("Gagal mengimpor ke Firebase: " + err.message);
               this.showSkeletonLoading(false);
             });
-            
+
           } else {
             // LocalStorage mode
-            const storageKey = this.user 
-              ? `uangnih_demo_cloud_${this.user.uid}` 
+            const storageKey = this.user
+              ? `uangnih_demo_cloud_${this.user.uid}`
               : 'uangnih_local_transactions';
 
             // Generate clean IDs for imported local items
@@ -1552,7 +1552,7 @@ class UangNihApp {
             this.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             localStorage.setItem(storageKey, JSON.stringify(this.transactions));
-            
+
             setTimeout(() => {
               alert(`Berhasil mengimpor ${cleanedImport.length} transaksi ke penyimpanan lokal!`);
               this.showSkeletonLoading(false);
@@ -1565,7 +1565,7 @@ class UangNihApp {
       } catch (err) {
         alert("Gagal memproses file JSON: " + err.message);
       }
-      
+
       // Reset input value to allow re-uploading same file
       this.el.fileImport.value = '';
     };
