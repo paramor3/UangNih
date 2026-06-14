@@ -102,14 +102,12 @@ body {
 }
 
 .logo {
-  display: flex;
-  align-items: center;
-}
-
-.logo-img {
-  height: 26px;
-  width: auto;
-  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary) 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
 }
 
 .sub-logo {
