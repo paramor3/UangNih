@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>UangNih - Catat Keuangan Simpel</title>
+  <!-- App Icon -->
+  <link rel="icon" type="image/png" href="uangnih.png">
+  
   <!-- Google Font & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,13 +31,14 @@
       <!-- HEADER -->
       <header class="app-header">
         <div class="header-left">
-          <h1 class="logo">UangNih</h1>
+          <h1 class="logo"><img src="uangnih-transparent.png" alt="UangNih" class="logo-img"></h1>
           <span class="sub-logo">Catat Keuangan Instan</span>
         </div>
         <div class="header-right">
           <!-- Firebase Connection Indicator & Profile -->
           <button id="btn-profile" class="profile-btn" title="Pengaturan Akun / Firebase">
-            <span class="material-icons-round">account_circle</span>
+            <span id="profile-icon" class="material-icons-round">account_circle</span>
+            <img id="profile-avatar" class="profile-avatar-img hidden" src="" alt="Profile">
             <span id="sync-indicator" class="sync-dot offline" title="Offline (Penyimpanan Lokal)"></span>
           </button>
         </div>

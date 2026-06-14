@@ -64,6 +64,8 @@ class UangNihApp {
       
       // Header & banners
       btnProfile: document.getElementById('btn-profile'),
+      profileIcon: document.getElementById('profile-icon'),
+      profileAvatar: document.getElementById('profile-avatar'),
       syncIndicator: document.getElementById('sync-indicator'),
       offlineBanner: document.getElementById('offline-banner'),
       btnBannerLogin: document.getElementById('btn-banner-login'),
@@ -720,11 +722,29 @@ class UangNihApp {
       this.el.userAvatar.src = this.user.photoURL || 'https://via.placeholder.com/150';
       this.el.userDisplayName.textContent = this.user.displayName;
       this.el.userEmail.textContent = this.user.email;
+
+      // Update header profile button to show user avatar
+      if (this.el.profileAvatar) {
+        this.el.profileAvatar.src = this.user.photoURL || 'https://via.placeholder.com/150';
+        this.el.profileAvatar.classList.remove('hidden');
+      }
+      if (this.el.profileIcon) {
+        this.el.profileIcon.classList.add('hidden');
+      }
     } else {
       // Logged out UI state
       this.el.offlineBanner.classList.remove('hidden');
       this.el.userInfoUnlogged.classList.remove('hidden');
       this.el.userInfoLogged.classList.add('hidden');
+
+      // Update header profile button to show default icon
+      if (this.el.profileAvatar) {
+        this.el.profileAvatar.src = '';
+        this.el.profileAvatar.classList.add('hidden');
+      }
+      if (this.el.profileIcon) {
+        this.el.profileIcon.classList.remove('hidden');
+      }
     }
   }
 

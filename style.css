@@ -102,12 +102,14 @@ body {
 }
 
 .logo {
-  font-size: 20px;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--primary) 0%, #818cf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: 26px;
+  width: auto;
+  display: block;
 }
 
 .sub-logo {
@@ -137,6 +139,15 @@ body {
 
 .profile-btn .material-icons-round {
   font-size: 32px;
+}
+
+.profile-avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+  display: block;
 }
 
 .sync-dot {
