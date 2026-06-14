@@ -57,6 +57,7 @@ class UangNihApp {
       // Pages
       pageHome: document.getElementById('page-home'),
       pageStats: document.getElementById('page-stats'),
+      appContent: document.getElementById('app-content'),
       
       // Nav buttons
       navHome: document.getElementById('nav-btn-home'),
@@ -289,6 +290,14 @@ class UangNihApp {
     
     this.el.pageHome.classList.toggle('active', view === 'home');
     this.el.pageStats.classList.toggle('active', view === 'stats');
+
+    if (this.el.appContent) {
+      if (view === 'home') {
+        this.el.appContent.style.transform = 'translateX(0%)';
+      } else {
+        this.el.appContent.style.transform = 'translateX(-50%)';
+      }
+    }
 
     if (view === 'stats') {
       this.updateStatsView();

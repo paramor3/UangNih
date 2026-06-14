@@ -245,8 +245,9 @@ const Parser = {
       return { date, datePhrase };
     }
     
-    if (/\bkemarin\b/i.test(text)) {
-      datePhrase = 'kemarin';
+    if (/\b(?:kemarin|semalam|tadi\s+malam)\b/i.test(text)) {
+      const matchWord = text.match(/\b(?:kemarin|semalam|tadi\s+malam)\b/i)[0];
+      datePhrase = matchWord;
       const yesterday = new Date(today);
       yesterday.setDate(today.getDate() - 1);
       date = this.formatDate(yesterday);
