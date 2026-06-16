@@ -1,0 +1,112 @@
+{
+  "version": "1.0",
+  "description": "PR salvage and review corpus for queue cleanup automation",
+  "generatedAt": "2026-06-16T10:25:00.000Z",
+  "scenarios": [
+    {
+      "id": "pr-salvage-001",
+      "name": "Stale feature PR",
+      "prState": "open",
+      "daysSinceUpdate": 45,
+      "labels": ["feature", "needs-review"],
+      "hasConflicts": false,
+      "reviewStatus": "changes-requested",
+      "action": "salvage",
+      "recommendedActions": [
+        "Check if feature is still relevant",
+        "Rebase onto main branch",
+        "Address requested changes"
+      ]
+    },
+    {
+      "id": "pr-salvage-002",
+      "name": "Abandoned bugfix",
+      "prState": "open",
+      "daysSinceUpdate": 90,
+      "labels": ["bugfix"],
+      "hasConflicts": true,
+      "reviewStatus": "no-review",
+      "action": "close-or-salvage",
+      "recommendedActions": [
+        "Check if bug still exists",
+        "Create new PR if fix is simple",
+        "Close with explanation if obsolete"
+      ]
+    },
+    {
+      "id": "pr-salvage-003",
+      "name": "Review thread unresolved",
+      "prState": "open",
+      "daysSinceUpdate": 14,
+      "labels": ["feature"],
+      "hasConflicts": false,
+      "reviewStatus": "review-in-progress",
+      "unresolvedThreads": 3,
+      "action": "ping-author",
+      "recommendedActions": [
+        "Ping author to address feedback",
+        "Summarize unresolved threads",
+        "Set reminder for follow-up"
+      ]
+    },
+    {
+      "id": "pr-salvage-004",
+      "name": "Reopen flow - fixed regression",
+      "prState": "closed",
+      "daysSinceUpdate": 7,
+      "labels": ["bugfix", "regression"],
+      "hasConflicts": false,
+      "closeReason": "author-abandoned",
+      "action": "reopen",
+      "recommendedActions": [
+        "Verify fix still applies",
+        "Run regression tests",
+        "Reopen with context"
+      ]
+    },
+    {
+      "id": "pr-salvage-005",
+      "name": "Draft PR cleanup",
+      "prState": "draft",
+      "daysSinceUpdate": 60,
+      "labels": ["wip"],
+      "hasConflicts": true,
+      "action": "close",
+      "recommendedActions": [
+        "Check if work should continue",
+        "Create issue if feature needed",
+        "Close draft PR"
+      ]
+    }
+  ],
+  "triageRules": [
+    {
+      "condition": "daysSinceUpdate > 30 AND reviewStatus != 'approved'",
+      "action": "review-stale",
+      "priority": "medium"
+    },
+    {
+      "condition": "hasConflicts == true",
+      "action": "needs-rebase",
+      "priority": "high"
+    },
+    {
+      "condition": "daysSinceUpdate > 60 AND prState == 'draft'",
+      "action": "close-draft",
+      "priority": "low"
+    },
+    {
+      "condition": "unresolvedThreads > 0 AND daysSinceUpdate > 7",
+      "action": "ping-author",
+      "priority": "medium"
+    }
+  ],
+  "salvageChecklist": [
+    "Verify original issue still exists",
+    "Check for duplicate PRs",
+    "Rebase onto current main",
+    "Run full test suite",
+    "Update documentation if needed",
+    "Assign reviewer"
+  ]
+}

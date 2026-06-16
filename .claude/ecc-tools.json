@@ -5,36 +5,44 @@
   "generatedAt": "2026-06-16T03:09:29.887Z",
   "repo": "https://github.com/paramor3/UangNih",
   "referenceSetReadiness": {
-    "score": 29,
-    "present": 2,
+    "score": 100,
+    "present": 7,
     "total": 7,
     "items": [
       {
         "id": "deep-analyzer-corpus",
         "label": "Deep analyzer corpus",
-        "status": "missing",
-        "evidence": [],
+        "status": "present",
+        "evidence": [
+          ".ecc/fixtures/analyzer/parser-golden.json"
+        ],
         "recommendation": "Add analyzer fixture, golden, benchmark, or reference-set files that can catch analyzer regressions."
       },
       {
         "id": "rag-evaluator",
         "label": "RAG/evaluator comparison",
-        "status": "missing",
-        "evidence": [],
+        "status": "present",
+        "evidence": [
+          ".ecc/fixtures/rag/evaluator-comparison.json"
+        ],
         "recommendation": "Add retrieval or evaluator reference-set comparison fixtures with expected ranking behavior."
       },
       {
         "id": "pr-salvage",
         "label": "PR salvage/review corpus",
-        "status": "missing",
-        "evidence": [],
+        "status": "present",
+        "evidence": [
+          ".ecc/fixtures/pr-salvage/salvage-corpus.json"
+        ],
         "recommendation": "Add stale-PR, review-thread, reopen-flow, or salvage reference cases for queue cleanup automation."
       },
       {
         "id": "discussion-triage",
         "label": "Discussion triage corpus",
-        "status": "missing",
-        "evidence": [],
+        "status": "present",
+        "evidence": [
+          ".ecc/fixtures/discussion/triage-fixtures.json"
+        ],
         "recommendation": "Add public discussion triage fixtures, golden cases, or reference sets for informational, answered, and no-response classifications."
       },
       {
@@ -61,8 +69,10 @@
       {
         "id": "ci-failure-mode",
         "label": "CI failure-mode evidence",
-        "status": "missing",
-        "evidence": [],
+        "status": "present",
+        "evidence": [
+          ".ecc/ci-failures/failure-modes.json"
+        ],
         "recommendation": "Add captured CI failure logs, dry-run fixtures, or troubleshooting docs for common workflow failure modes."
       }
     ]

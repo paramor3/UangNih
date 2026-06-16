@@ -1,0 +1,119 @@
+{
+  "version": "1.0",
+  "description": "Discussion triage fixtures for informational, answered, and no-response classifications",
+  "generatedAt": "2026-06-16T10:25:00.000Z",
+  "classifications": {
+    "informational": {
+      "description": "Discussion is purely informational, no action required",
+      "indicators": ["FYI", "announcement", "update", "notice", "information"]
+    },
+    "answered": {
+      "description": "Question has been answered, can be closed",
+      "indicators": ["thanks", "solved", "worked", "fixed", "resolved", "got it"]
+    },
+    "no-response": {
+      "description": "Question awaiting response from maintainers",
+      "indicators": ["question", "help", "how to", "is there", "can you", "does anyone"]
+    },
+    "needs-triage": {
+      "description": "New discussion needs categorization",
+      "indicators": ["new", "unlabeled", "unassigned"]
+    },
+    "bug-report": {
+      "description": "User reporting a bug, needs investigation",
+      "indicators": ["bug", "error", "crash", "broken", "not working", "issue"]
+    },
+    "feature-request": {
+      "description": "User requesting a new feature",
+      "indicators": ["feature", "request", "suggestion", "would be nice", "add support"]
+    }
+  },
+  "fixtures": [
+    {
+      "id": "discuss-001",
+      "title": "How to parse amount with comma separator?",
+      "body": "I'm trying to input 'Beli kopi 1,5jt' but the parser returns wrong amount. Is this supported?",
+      "expectedClassification": "needs-triage",
+      "suggestedLabels": ["question", "parser"],
+      "priority": "medium",
+      "responseTemplate": "needs-investigation"
+    },
+    {
+      "id": "discuss-002",
+      "title": "Great app, thanks!",
+      "body": "Just wanted to say thanks for this app, works perfectly for my daily expenses.",
+      "expectedClassification": "informational",
+      "suggestedLabels": ["feedback", "positive"],
+      "priority": "low",
+      "action": "close-with-thanks"
+    },
+    {
+      "id": "discuss-003",
+      "title": "Firebase sync not working",
+      "body": "After logging in with Google, my transactions don't sync to Firebase. Getting error: permission denied.",
+      "expectedClassification": "bug-report",
+      "suggestedLabels": ["bug", "firebase", "auth"],
+      "priority": "high",
+      "responseTemplate": "bug-investigation"
+    },
+    {
+      "id": "discuss-004",
+      "title": "Add support for recurring transactions",
+      "body": "It would be great if we could set up recurring transactions like monthly subscriptions.",
+      "expectedClassification": "feature-request",
+      "suggestedLabels": ["enhancement", "feature"],
+      "priority": "medium",
+      "action": "add-to-roadmap"
+    },
+    {
+      "id": "discuss-005",
+      "title": "Re: How to export data?",
+      "body": "Thanks! The export button worked. You can close this.",
+      "expectedClassification": "answered",
+      "suggestedLabels": ["resolved"],
+      "priority": "low",
+      "action": "close"
+    },
+    {
+      "id": "discuss-006",
+      "title": "Parser doesn't recognize 'semalam'",
+      "body": "When I input 'Makan malam 50rb semalam', the date is not set to yesterday.",
+      "expectedClassification": "bug-report",
+      "suggestedLabels": ["bug", "parser", "date"],
+      "priority": "medium",
+      "responseTemplate": "bug-investigation"
+    },
+    {
+      "id": "discuss-007",
+      "title": "Update: New category colors added",
+      "body": "FYI - Added new color scheme for categories in v1.2.0",
+      "expectedClassification": "informational",
+      "suggestedLabels": ["update", "ui"],
+      "priority": "low",
+      "action": "acknowledge"
+    },
+    {
+      "id": "discuss-008",
+      "title": "Need help setting up Firebase",
+      "body": "Can someone help me configure Firebase for my own deployment? The docs are unclear.",
+      "expectedClassification": "no-response",
+      "suggestedLabels": ["question", "docs", "firebase"],
+      "priority": "medium",
+      "responseTemplate": "documentation-request"
+    }
+  ],
+  "responseTemplates": {
+    "needs-investigation": "Thanks for reporting! We'll investigate this issue and get back to you.",
+    "bug-investigation": "Thanks for the bug report. We're looking into this. Can you provide:\n1. Browser version\n2. Steps to reproduce\n3. Expected vs actual behavior",
+    "documentation-request": "Thanks for the feedback! We'll update the documentation to be clearer.",
+    "feature-acknowledgment": "Thanks for the suggestion! We've added this to our roadmap."
+  },
+  "triageWorkflow": [
+    "Classify discussion type",
+    "Apply appropriate labels",
+    "Set priority based on classification",
+    "Assign to appropriate team member",
+    "Send acknowledgment if needed",
+    "Set follow-up reminder for unanswered questions"
+  ]
+}

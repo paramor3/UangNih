@@ -1,0 +1,189 @@
+{
+  "version": "1.0",
+  "description": "NLP Parser analyzer fixtures for Indonesian financial transaction parsing",
+  "generatedAt": "2026-06-16T10:25:00.000Z",
+  "fixtures": [
+    {
+      "id": "analyzer-001",
+      "name": "Basic expense with amount suffix",
+      "input": "Beli kopi 25rb",
+      "expected": {
+        "type": "expense",
+        "amount": 25000,
+        "category": "Makanan",
+        "descriptionContains": "kopi"
+      },
+      "tags": ["amount", "thousands", "makanan"]
+    },
+    {
+      "id": "analyzer-002",
+      "name": "Income with gaji keyword",
+      "input": "Gaji bulanan 5jt",
+      "expected": {
+        "type": "income",
+        "amount": 5000000,
+        "category": "Gaji",
+        "descriptionContains": "Gaji"
+      },
+      "tags": ["income", "millions", "gaji"]
+    },
+    {
+      "id": "analyzer-003",
+      "name": "Relative date - kemarin",
+      "input": "Makan siang 50000 kemarin",
+      "expected": {
+        "type": "expense",
+        "amount": 50000,
+        "category": "Makanan",
+        "dateOffset": -1
+      },
+      "tags": ["date", "relative", "yesterday"]
+    },
+    {
+      "id": "analyzer-004",
+      "name": "Transport with gojek keyword",
+      "input": "Gojek ke kantor 15000",
+      "expected": {
+        "type": "expense",
+        "amount": 15000,
+        "category": "Transportasi",
+        "descriptionContains": "Gojek"
+      },
+      "tags": ["transport", "gojek"]
+    },
+    {
+      "id": "analyzer-005",
+      "name": "Tagihan with wifi keyword",
+      "input": "Bayar wifi 350000",
+      "expected": {
+        "type": "expense",
+        "amount": 350000,
+        "category": "Tagihan",
+        "descriptionContains": "wifi"
+      },
+      "tags": ["tagihan", "wifi"]
+    },
+    {
+      "id": "analyzer-006",
+      "name": "Investasi income",
+      "input": "Keuntungan jual saham 500rb",
+      "expected": {
+        "type": "income",
+        "amount": 500000,
+        "category": "Investasi",
+        "descriptionContains": "saham"
+      },
+      "tags": ["income", "investasi", "saham"]
+    },
+    {
+      "id": "analyzer-007",
+      "name": "Hiburan category",
+      "input": "Nonton bioskop 50000",
+      "expected": {
+        "type": "expense",
+        "amount": 50000,
+        "category": "Hiburan",
+        "descriptionContains": "bioskop"
+      },
+      "tags": ["hiburan", "bioskop"]
+    },
+    {
+      "id": "analyzer-008",
+      "name": "Belanja category",
+      "input": "Beli sepatu baru 450rb",
+      "expected": {
+        "type": "expense",
+        "amount": 450000,
+        "category": "Belanja",
+        "descriptionContains": "sepatu"
+      },
+      "tags": ["belanja", "sepatu"]
+    },
+    {
+      "id": "analyzer-009",
+      "name": "Complex amount format",
+      "input": "Transfer 1.500.000 untuk sewa kos",
+      "expected": {
+        "type": "expense",
+        "amount": 1500000,
+        "category": "Tagihan",
+        "descriptionContains": "kos"
+      },
+      "tags": ["amount", "complex", "tagihan"]
+    },
+    {
+      "id": "analyzer-010",
+      "name": "Decimal juta format",
+      "input": "Gaji 2.5 juta",
+      "expected": {
+        "type": "income",
+        "amount": 2500000,
+        "category": "Gaji"
+      },
+      "tags": ["income", "amount", "decimal"]
+    },
+    {
+      "id": "analyzer-011",
+      "name": "Week ago date parsing",
+      "input": "Beli makan seminggu lalu 30rb",
+      "expected": {
+        "type": "expense",
+        "amount": 30000,
+        "category": "Makanan",
+        "dateOffset": -7
+      },
+      "tags": ["date", "relative", "week"]
+    },
+    {
+      "id": "analyzer-012",
+      "name": "Explicit date with month name",
+      "input": "Beli kopi 25rb tanggal 14 juni",
+      "expected": {
+        "type": "expense",
+        "amount": 25000,
+        "category": "Makanan",
+        "date": "2026-06-14"
+      },
+      "tags": ["date", "explicit", "month"]
+    },
+    {
+      "id": "analyzer-013",
+      "name": "Default to Lain-lain category",
+      "input": "Beli sesuatu 10000",
+      "expected": {
+        "type": "expense",
+        "amount": 10000,
+        "category": "Lain-lain"
+      },
+      "tags": ["category", "default"]
+    },
+    {
+      "id": "analyzer-014",
+      "name": "Refund as income",
+      "input": "Refund pembelian 75rb",
+      "expected": {
+        "type": "income",
+        "amount": 75000,
+        "category": "Lain-lain"
+      },
+      "tags": ["income", "refund"]
+    },
+    {
+      "id": "analyzer-015",
+      "name": "Multiple amounts picks largest",
+      "input": "Beli 2 kopi 25000",
+      "expected": {
+        "type": "expense",
+        "amount": 25000,
+        "category": "Makanan"
+      },
+      "tags": ["amount", "multiple", "priority"]
+    }
+  ],
+  "evaluationMetrics": {
+    "typeAccuracy": 0.95,
+    "amountAccuracy": 0.90,
+    "categoryAccuracy": 0.85,
+    "dateAccuracy": 0.80
+  }
+}

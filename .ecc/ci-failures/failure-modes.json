@@ -1,0 +1,192 @@
+{
+  "version": "1.0",
+  "description": "CI failure mode evidence and troubleshooting guides",
+  "generatedAt": "2026-06-16T10:25:00.000Z",
+  "failureModes": [
+    {
+      "id": "ci-fail-001",
+      "name": "Build script failure - javascript-obfuscator",
+      "stage": "build",
+      "symptoms": [
+        "Error: Cannot find module 'javascript-obfuscator'",
+        "TypeError: JavaScriptObfuscator.obfuscate is not a function"
+      ],
+      "rootCauses": [
+        "Missing devDependencies",
+        "Version mismatch in package.json"
+      ],
+      "resolution": [
+        "Run `npm install` to install dependencies",
+        "Check package.json has javascript-obfuscator in devDependencies",
+        "Verify Node.js version is 18+"
+      ],
+      "prevention": [
+        "Lock dependency versions in package-lock.json",
+        "Add CI step to verify dependency installation"
+      ],
+      "severity": "high",
+      "frequency": "occasional"
+    },
+    {
+      "id": "ci-fail-002",
+      "name": "Firebase configuration error",
+      "stage": "runtime",
+      "symptoms": [
+        "Firebase: Error (auth/invalid-api-key)",
+        "Firebase: Error (auth/configuration-not-found)"
+      ],
+      "rootCauses": [
+        "Missing or invalid Firebase config",
+        "Environment variables not set"
+      ],
+      "resolution": [
+        "Verify firebaseConfig object in src/app.js",
+        "Check API key is valid",
+        "Ensure Firebase project is active"
+      ],
+      "prevention": [
+        "Use environment variables for sensitive config",
+        "Add Firebase config validation in CI"
+      ],
+      "severity": "high",
+      "frequency": "rare"
+    },
+    {
+      "id": "ci-fail-003",
+      "name": "Vercel deployment failure",
+      "stage": "deploy",
+      "symptoms": [
+        "Deployment failed with exit code 1",
+        "Build output exceeds size limit"
+      ],
+      "rootCauses": [
+        "Missing vercel.json configuration",
+        "Build output too large",
+        "Invalid build command"
+      ],
+      "resolution": [
+        "Check vercel.json exists and is valid",
+        "Verify build script produces correct output in dist/",
+        "Check file sizes in dist/ directory"
+      ],
+      "prevention": [
+        "Add vercel.json validation to CI",
+        "Monitor dist/ directory size",
+        "Test deployment in preview environment"
+      ],
+      "severity": "medium",
+      "frequency": "occasional"
+    },
+    {
+      "id": "ci-fail-004",
+      "name": "Network connectivity failure",
+      "stage": "any",
+      "symptoms": [
+        "Failed to connect to github.com port 443",
+        "ETIMEDOUT",
+        "ECONNREFUSED"
+      ],
+      "rootCauses": [
+        "No internet connection",
+        "Firewall blocking connections",
+        "Proxy misconfiguration"
+      ],
+      "resolution": [
+        "Check internet connectivity",
+        "Verify firewall allows GitHub access",
+        "Configure git proxy if needed: git config --global http.proxy <proxy>"
+      ],
+      "prevention": [
+        "Use CI environment with stable network",
+        "Cache dependencies to reduce network calls"
+      ],
+      "severity": "high",
+      "frequency": "occasional"
+    },
+    {
+      "id": "ci-fail-005",
+      "name": "Node.js version incompatibility",
+      "stage": "build",
+      "symptoms": [
+        "SyntaxError: Unexpected token",
+        "Error: The engine 'node' is incompatible with this module"
+      ],
+      "rootCauses": [
+        "Node.js version too old",
+        "Using modern ES features without transpilation"
+      ],
+      "resolution": [
+        "Update to Node.js 18+",
+        "Add .nvmrc or engines field in package.json",
+        "Use nvm to manage Node versions"
+      ],
+      "prevention": [
+        "Specify Node version in CI configuration",
+        "Add engines field to package.json"
+      ],
+      "severity": "medium",
+      "frequency": "rare"
+    },
+    {
+      "id": "ci-fail-006",
+      "name": "Source map generation failure",
+      "stage": "build",
+      "symptoms": [
+        "Error generating source maps",
+        "ENOENT: no such file or directory"
+      ],
+      "rootCauses": [
+        "Missing source files",
+        "Incorrect paths in build.js"
+      ],
+      "resolution": [
+        "Verify src/ directory exists with app.js and parser.js",
+        "Check build.js paths are correct",
+        "Run build locally to debug"
+      ],
+      "prevention": [
+        "Add file existence checks in build script",
+        "Use path.resolve for reliable paths"
+      ],
+      "severity": "low",
+      "frequency": "rare"
+    }
+  ],
+  "dryRunFixtures": [
+    {
+      "name": "Clean build dry-run",
+      "command": "npm run build",
+      "expectedOutput": [
+        "Build completed successfully",
+        "Output written to dist/"
+      ],
+      "expectedExitCode": 0
+    },
+    {
+      "name": "Dependency install dry-run",
+      "command": "npm ci --dry-run",
+      "expectedOutput": [
+        "Would install packages"
+      ],
+      "expectedExitCode": 0
+    }
+  ],
+  "troubleshootingGuide": {
+    "firstSteps": [
+      "Check CI logs for exact error message",
+      "Identify which stage failed (install, build, deploy)",
+      "Reproduce locally if possible"
+    ],
+    "commonChecks": [
+      "Node.js version matches requirements",
+      "All dependencies are listed in package.json",
+      "Source files exist in expected locations",
+      "Environment variables are set correctly"
+    ],
+    "escalationPath": [
+      "Search existing issues for similar errors",
+      "Check GitHub Actions logs for details",
+      "Create new issue with reproduction steps if unresolved"
+    ]
+  }
+}

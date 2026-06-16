@@ -1,0 +1,107 @@
+{
+  "version": "1.0",
+  "description": "RAG evaluator comparison fixtures for NLP parser retrieval accuracy",
+  "generatedAt": "2026-06-16T10:25:00.000Z",
+  "querySets": [
+    {
+      "id": "rag-001",
+      "query": "makanan dan minuman",
+      "expectedCategories": ["Makanan"],
+      "expectedKeywords": ["makan", "minum", "kopi", "nasi", "resto"],
+      "minRelevanceScore": 0.8
+    },
+    {
+      "id": "rag-002",
+      "query": "transportasi online",
+      "expectedCategories": ["Transportasi"],
+      "expectedKeywords": ["gojek", "grab", "ojek", "ojol"],
+      "minRelevanceScore": 0.8
+    },
+    {
+      "id": "rag-003",
+      "query": "tagihan bulanan",
+      "expectedCategories": ["Tagihan"],
+      "expectedKeywords": ["listrik", "wifi", "sewa", "kos"],
+      "minRelevanceScore": 0.8
+    },
+    {
+      "id": "rag-004",
+      "query": "belanja online",
+      "expectedCategories": ["Belanja"],
+      "expectedKeywords": ["shopee", "tokopedia", "beli", "belanja"],
+      "minRelevanceScore": 0.75
+    },
+    {
+      "id": "rag-005",
+      "query": "pemasukan gaji",
+      "expectedCategories": ["Gaji"],
+      "expectedType": "income",
+      "expectedKeywords": ["gaji", "salary", "bonus", "thr"],
+      "minRelevanceScore": 0.85
+    },
+    {
+      "id": "rag-006",
+      "query": "investasi dan tabungan",
+      "expectedCategories": ["Investasi"],
+      "expectedType": "income",
+      "expectedKeywords": ["saham", "reksadana", "crypto", "nabung"],
+      "minRelevanceScore": 0.75
+    },
+    {
+      "id": "rag-007",
+      "query": "hiburan dan rekreasi",
+      "expectedCategories": ["Hiburan"],
+      "expectedKeywords": ["nonton", "bioskop", "game", "liburan"],
+      "minRelevanceScore": 0.8
+    }
+  ],
+  "rankingFixtures": [
+    {
+      "id": "rank-001",
+      "input": "Beli kopi susu di starbucks 45rb",
+      "expectedTopCategory": "Makanan",
+      "expectedRanking": ["Makanan", "Belanja", "Lain-lain"],
+      "relevanceScores": {
+        "Makanan": 0.95,
+        "Belanja": 0.3,
+        "Lain-lain": 0.1
+      }
+    },
+    {
+      "id": "rank-002",
+      "input": "Bayar grab car ke bandara 150rb",
+      "expectedTopCategory": "Transportasi",
+      "expectedRanking": ["Transportasi", "Lain-lain"],
+      "relevanceScores": {
+        "Transportasi": 0.92,
+        "Lain-lain": 0.15
+      }
+    },
+    {
+      "id": "rank-003",
+      "input": "Gaji bulan ini 6jt",
+      "expectedTopCategory": "Gaji",
+      "expectedType": "income",
+      "expectedRanking": ["Gaji", "Investasi", "Lain-lain"],
+      "relevanceScores": {
+        "Gaji": 0.98,
+        "Investasi": 0.2,
+        "Lain-lain": 0.05
+      }
+    }
+  ],
+  "evaluationCriteria": {
+    "precision": {
+      "target": 0.85,
+      "description": "Percentage of retrieved categories that are relevant"
+    },
+    "recall": {
+      "target": 0.90,
+      "description": "Percentage of relevant categories that are retrieved"
+    },
+    "mrr": {
+      "target": 0.80,
+      "description": "Mean reciprocal rank for top category match"
+    }
+  }
+}
