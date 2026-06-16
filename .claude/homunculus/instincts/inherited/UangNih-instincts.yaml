@@ -1,0 +1,461 @@
+# Instincts generated from https://github.com/paramor3/UangNih
+# Generated: 2026-06-16T03:09:48.518Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: UangNih-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/paramor3/UangNih
+---
+
+# UangNih Commit Length
+
+## Action
+
+Keep commit messages concise (~14 characters)
+
+## Evidence
+
+- Average commit message length: 14 chars
+- Based on 17 commits
+
+---
+id: UangNih-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/paramor3/UangNih
+---
+
+# UangNih Naming Files
+
+## Action
+
+Use PascalCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: PascalCase
+
+---
+id: UangNih-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/paramor3/UangNih
+---
+
+# UangNih Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: UangNih-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/paramor3/UangNih
+---
+
+# UangNih Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: UangNih-arch-type-based
+trigger: "when adding new code"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: https://github.com/paramor3/UangNih
+---
+
+# UangNih Arch Type Based
+
+## Action
+
+Place code in the appropriate type folder (components/, services/, utils/, etc.)
+
+## Evidence
+
+- Type-based module organization detected
+- Folders: 
+
+---
+id: UangNih-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/paramor3/UangNih
+---
+
+# UangNih Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.js
+
+## Evidence
+
+- File pattern: *.test.js
+- Consistent across test files
+
+---
+id: UangNih-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/paramor3/UangNih
+---
+
+# UangNih Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~9x per month
+- Files: 
+
+---
+id: UangNih-workflow-feature-or-bugfix-with-build-output
+trigger: "when doing feature or bugfix with build output"
+confidence: 0.7
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/paramor3/UangNih
+---
+
+# UangNih Workflow Feature Or Bugfix With Build Output
+
+## Action
+
+Follow the feature-or-bugfix-with-build-output workflow:
+1. Edit source files (e.g., app.js, parser.js, index.html, src/app.js)
+2. Run build process to update dist/ files (e.g., dist/app.js, dist/index.html, dist/parser.js)
+3. Commit both source and dist/ files together
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~4x per month
+- Files: app.js, parser.js, index.html
+
+---
+id: UangNih-workflow-ui-or-style-update
+trigger: "when doing ui or style update"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/paramor3/UangNih
+---
+
+# UangNih Workflow Ui Or Style Update
+
+## Action
+
+Follow the ui-or-style-update workflow:
+1. Edit index.html and/or style.css
+2. Optionally add or remove image files (e.g., uangnih.png, uangnih-transparent.png)
+3. Commit UI/style and asset changes together
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: index.html, style.css, uangnih.png
+
+---
+id: UangNih-workflow-single-file-hotfix
+trigger: "when doing single file hotfix"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/paramor3/UangNih
+---
+
+# UangNih Workflow Single File Hotfix
+
+## Action
+
+Follow the single-file-hotfix workflow:
+1. Edit a single file (e.g., index.html or parser.js)
+2. Commit the change
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: index.html, parser.js
+
+---
+id: uangnih-instinct-file-naming
+trigger: "When creating a new JavaScript file or class"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct File Naming
+
+## Action
+
+Name the file and class using PascalCase (e.g., Parser.js, MyClass)
+
+## Evidence
+
+- Pattern in files: Parser.js, app.js
+- Naming conventions section
+
+---
+id: uangnih-instinct-function-naming
+trigger: "When defining a new function"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Function Naming
+
+## Action
+
+Use camelCase for function names (e.g., parseInput, addTransaction)
+
+## Evidence
+
+- Naming conventions: functions=camelCase
+- Pattern in codeStyle
+
+---
+id: uangnih-instinct-constant-naming
+trigger: "When declaring a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Constant Naming
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for constant names (e.g., MAX_VALUE)
+
+## Evidence
+
+- Naming conventions: constants=SCREAMING_SNAKE_CASE
+- Pattern in codeStyle
+
+---
+id: uangnih-instinct-import-style
+trigger: "When importing modules in JavaScript files"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Import Style
+
+## Action
+
+Use relative import paths (e.g., './parser.js')
+
+## Evidence
+
+- importStyle: relative
+- Pattern in codeStyle
+
+---
+id: uangnih-instinct-export-style
+trigger: "When exporting functions or classes"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Export Style
+
+## Action
+
+Use named exports (e.g., export { myFunction })
+
+## Evidence
+
+- exportStyle: named
+- Pattern in codeStyle
+
+---
+id: uangnih-instinct-test-location
+trigger: "When adding new tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Test Location
+
+## Action
+
+Place test files alongside source files using the pattern *.test.js
+
+## Evidence
+
+- testLocation: mixed
+- filePattern: *.test.js
+
+---
+id: uangnih-instinct-test-type
+trigger: "When writing tests"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Test Type
+
+## Action
+
+Write unit tests for new or changed code
+
+## Evidence
+
+- testTypes: unit
+- Pattern in testing
+
+---
+id: uangnih-instinct-test-coverage
+trigger: "When configuring or running tests"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Test Coverage
+
+## Action
+
+Ensure code coverage is measured and reported
+
+## Evidence
+
+- coverageConfig: true
+- Pattern in testing
+
+---
+id: uangnih-instinct-commit-format
+trigger: "When making a commit"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Commit Format
+
+## Action
+
+Use short, freeform commit messages without a required prefix, typically describing the change in 2-5 words
+
+## Evidence
+
+- commits: type=freeform, no prefixes
+- Examples: 'add google login', 'Update parser.js'
+
+---
+id: uangnih-instinct-feature-with-build-workflow
+trigger: "When adding a feature or fixing a bug that affects build output"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Feature With Build Workflow
+
+## Action
+
+Edit source files, run the build process, and commit both source and dist/ files together
+
+## Evidence
+
+- Workflow: feature-or-bugfix-with-build-output
+- Commit sequence and files involved
+
+---
+id: uangnih-instinct-ui-update-workflow
+trigger: "When updating UI, styles, or image assets"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Ui Update Workflow
+
+## Action
+
+Edit index.html and/or style.css, optionally add/remove images, and commit all related changes together
+
+## Evidence
+
+- Workflow: ui-or-style-update
+- Commit sequence and files involved
+
+---
+id: uangnih-instinct-hotfix-workflow
+trigger: "When making a quick fix to a single file"
+confidence: 0.8
+domain: workflow
+source: repo-analysis
+source_repo: paramor3/UangNih
+---
+
+# Uangnih Instinct Hotfix Workflow
+
+## Action
+
+Edit the file and commit the change immediately
+
+## Evidence
+
+- Workflow: single-file-hotfix
+- Commit sequence and files involved
+
