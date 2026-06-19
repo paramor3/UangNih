@@ -22,6 +22,9 @@ class UangNihApp {
     this.isDemoMode = false; // False by default to connect to the real Firebase config
     this.startingBalance = 0;
     this.recurringBills = [];
+    this.transactionsLoaded = false;
+    this.recurringBillsLoaded = false;
+    this.appliedBillsInSession = {};
 
     // UI State
     this.currentView = 'home';
@@ -547,15 +550,30 @@ class UangNihApp {
 
       // Apply if today is past or equal to scheduled day
       if (curDay >= scheduledDay) {
+        const billSessionKey = `${b.id}_${curYear}_${curMonth}`;
+        
+        // Skip if this bill has already been applied in this session to prevent race conditions
+        if (this.appliedBillsInSession[billSessionKey]) {
+          return;
+        }
+
         // Check if there is already a transaction for this bill in the current month
         const alreadyLogged = this.transactions.some(t => {
-          const tDate = new Date(t.date);
-          const sameMonth = tDate.getMonth() === curMonth && tDate.getFullYear() === curYear;
+          if (!t.date) return false;
+          const parts = t.date.split('-');
+          if (parts.length < 2) return false;
+          const tYear = parseInt(parts[0], 10);
+          const tMonth = parseInt(parts[1], 10) - 1; // 0-indexed
+          
+          const sameMonth = tMonth === curMonth && tYear === curYear;
           const sameBill = t.recurringBillId === b.id || (t.description === `[Tagihan] ${b.name}` && t.amount === b.amount);
           return sameMonth && sameBill;
         });
 
         if (!alreadyLogged) {
+          // Immediately mark as applied in this session before making async save call
+          this.appliedBillsInSession[billSessionKey] = true;
+
           // Auto create transaction
           const transDateStr = `${curYear}-${String(curMonth + 1).padStart(2, '0')}-${String(scheduledDay).padStart(2, '0')}`;
 
@@ -566,7 +584,8 @@ class UangNihApp {
             category: 'Tagihan',
             date: transDateStr,
             recurringBillId: b.id,
-            time: '00:00'
+            time: '00:00',
+            createdAt: new Date().toISOString().split('.')[0] + 'Z'
           };
 
           this.saveTransaction(newTrans);
@@ -635,6 +654,11 @@ class UangNihApp {
     this.showSkeletonLoading(true);
     this.el.syncIndicator.className = 'sync-dot syncing';
 
+    // Reset loaded flags and session tracking for Firebase sync
+    this.transactionsLoaded = false;
+    this.recurringBillsLoaded = false;
+    this.appliedBillsInSession = {};
+
     // Fetch user doc once to get starting balance
     this.firestoreDb.collection('users').doc(this.user.uid).get().then(doc => {
       if (doc.exists && doc.data().startingBalance !== undefined) {
@@ -658,7 +682,10 @@ class UangNihApp {
           });
         });
         this.renderRecurringBills();
-        this.checkAndApplyRecurringBills();
+        this.recurringBillsLoaded = true;
+        if (this.transactionsLoaded) {
+          this.checkAndApplyRecurringBills();
+        }
       });
 
     this.firestoreUnsubscribe = this.firestoreDb.collection('users')
@@ -674,6 +701,8 @@ class UangNihApp {
           });
         });
 
+        this.sortTransactions();
+
         // Cache in LocalStorage just in case they lose connection later
         localStorage.setItem(`uangnih_cache_${this.user.uid}`, JSON.stringify(this.transactions));
 
@@ -684,6 +713,11 @@ class UangNihApp {
         this.renderDashboard();
         this.renderTransactions();
         if (this.currentView === 'stats') this.updateStatsView();
+
+        this.transactionsLoaded = true;
+        if (this.recurringBillsLoaded) {
+          this.checkAndApplyRecurringBills();
+        }
       }, (error) => {
         console.error("Firebase read error:", error);
         this.showSkeletonLoading(false);
@@ -691,6 +725,7 @@ class UangNihApp {
         const cached = localStorage.getItem(`uangnih_cache_${this.user.uid}`);
         if (cached) {
           this.transactions = JSON.parse(cached);
+          this.sortTransactions();
           this.renderDashboard();
           this.renderTransactions();
         }
@@ -803,6 +838,9 @@ class UangNihApp {
   loadTransactions() {
     this.showSkeletonLoading(true);
 
+    // Reset applied bills tracker for session
+    this.appliedBillsInSession = {};
+
     // Load starting balance
     const balanceKey = this.user
       ? `uangnih_demo_starting_balance_${this.user.uid}`
@@ -832,9 +870,14 @@ class UangNihApp {
         localStorage.setItem(storageKey, JSON.stringify(this.transactions));
       }
 
+      this.sortTransactions();
+
       this.showSkeletonLoading(false);
       this.renderDashboard();
       this.renderTransactions();
+      
+      this.transactionsLoaded = true;
+      this.recurringBillsLoaded = true;
       this.checkAndApplyRecurringBills();
       if (this.currentView === 'stats') this.updateStatsView();
     }, 600); // Small delay to enjoy skeleton shimmer
@@ -861,8 +904,7 @@ class UangNihApp {
       newTransaction.id = 'loc_' + Date.now() + Math.random().toString(36).substr(2, 5);
 
       this.transactions.unshift(newTransaction);
-      // Sort by date descending
-      this.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+      this.sortTransactions();
 
       localStorage.setItem(storageKey, JSON.stringify(this.transactions));
 
@@ -967,7 +1009,8 @@ class UangNihApp {
       amount: parseInt(this.el.previewAmount.value) || 0,
       category: this.el.previewCategory.value,
       date: this.el.previewDate.value || Parser.formatDate(now),
-      time: timeStr
+      time: timeStr,
+      createdAt: now.toISOString().split('.')[0] + 'Z'
     };
 
     if (trans.amount <= 0) {
@@ -1074,9 +1117,13 @@ class UangNihApp {
     const currentYearNum = this.currentDate.getFullYear();
 
     this.transactions.forEach(t => {
-      const tDate = new Date(t.date);
+      if (!t.date) return;
+      const parts = t.date.split('-');
+      if (parts.length < 2) return;
+      const tYear = parseInt(parts[0], 10);
+      const tMonth = parseInt(parts[1], 10) - 1; // 0-indexed
       // Only summarize calculations for current month of active view
-      if (tDate.getMonth() === currentMonthNum && tDate.getFullYear() === currentYearNum) {
+      if (tMonth === currentMonthNum && tYear === currentYearNum) {
         if (t.type === 'income') {
           incomeSum += t.amount;
         } else {
@@ -1125,10 +1172,14 @@ class UangNihApp {
 
       // 3. Filter by selected homepage month
       if (this.homeDate !== null) {
-        const tDate = new Date(t.date);
+        if (!t.date) return false;
+        const parts = t.date.split('-');
+        if (parts.length < 2) return false;
+        const tYear = parseInt(parts[0], 10);
+        const tMonth = parseInt(parts[1], 10) - 1; // 0-indexed
         const filterMonth = this.homeDate.getMonth();
         const filterYear = this.homeDate.getFullYear();
-        if (tDate.getMonth() !== filterMonth || tDate.getFullYear() !== filterYear) {
+        if (tMonth !== filterMonth || tYear !== filterYear) {
           return false;
         }
       }
@@ -1159,7 +1210,7 @@ class UangNihApp {
     });
 
     // Render groups
-    Object.keys(groups).sort((a, b) => new Date(b) - new Date(a)).forEach(dateStr => {
+    Object.keys(groups).sort((a, b) => b.localeCompare(a)).forEach(dateStr => {
       const dateHeaderLabel = this.formatDateHeader(dateStr);
       listHTML += `<div class="date-group"><div class="date-header">${dateHeaderLabel}</div>`;
 
@@ -1210,7 +1261,8 @@ class UangNihApp {
     const catClass = t.category.toLowerCase().replace(/\s+/g, '-');
     const iconName = this.getCategoryIcon(t.category);
 
-    const dateObj = new Date(t.date);
+    const [year, month, day] = t.date.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
     const dateFormatted = dateObj.toLocaleDateString('id-ID', {
       weekday: 'long',
       day: 'numeric',
@@ -1278,8 +1330,12 @@ class UangNihApp {
     const curYear = this.currentDate.getFullYear();
 
     return this.transactions.filter(t => {
-      const d = new Date(t.date);
-      return d.getMonth() === curMonth && d.getFullYear() === curYear;
+      if (!t.date) return false;
+      const parts = t.date.split('-');
+      if (parts.length < 2) return false;
+      const tYear = parseInt(parts[0], 10);
+      const tMonth = parseInt(parts[1], 10) - 1; // 0-indexed
+      return tMonth === curMonth && tYear === curYear;
     });
   }
 
@@ -1414,7 +1470,10 @@ class UangNihApp {
     ];
 
     mTransactions.forEach(t => {
-      const day = new Date(t.date).getDate();
+      if (!t.date) return;
+      const parts = t.date.split('-');
+      if (parts.length < 3) return;
+      const day = parseInt(parts[2], 10);
       let weekIndex = 0;
       if (day <= 7) weekIndex = 0;
       else if (day <= 14) weekIndex = 1;
@@ -1627,7 +1686,7 @@ class UangNihApp {
             const uniqueMap = {};
             merged.forEach(item => { uniqueMap[item.id] = item; });
             this.transactions = Object.values(uniqueMap);
-            this.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            this.sortTransactions();
 
             localStorage.setItem(storageKey, JSON.stringify(this.transactions));
 
@@ -1651,6 +1710,29 @@ class UangNihApp {
   }
 
   // ================= UTILITIES & HELPERS =================
+  sortTransactions() {
+    this.transactions.sort((a, b) => {
+      // 1. Compare Date descending (timezone-safe string comparison)
+      const dateA = a.date || '';
+      const dateB = b.date || '';
+      if (dateA !== dateB) {
+        return dateB.localeCompare(dateA);
+      }
+      
+      // 2. Compare Time descending
+      const timeA = a.time || '00:00';
+      const timeB = b.time || '00:00';
+      if (timeA !== timeB) {
+        return timeB.localeCompare(timeA);
+      }
+      
+      // 3. Compare addition timestamp (createdAt) descending (seconds precision)
+      const createdA = a.createdAt || '';
+      const createdB = b.createdAt || '';
+      return createdB.localeCompare(createdA);
+    });
+  }
+
   formatIDR(value) {
     return 'Rp ' + Math.abs(value).toLocaleString('id-ID');
   }
@@ -1670,7 +1752,8 @@ class UangNihApp {
     if (dateStr === yesterdayStr) return "Kemarin";
 
     // Format specific date: "14 Juni 2026"
-    const parsed = new Date(dateStr);
+    const parts = dateStr.split('-');
+    const parsed = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return parsed.toLocaleDateString('id-ID', options);
   }
