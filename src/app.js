@@ -25,6 +25,7 @@ class UangNihApp {
     this.transactionsLoaded = false;
     this.recurringBillsLoaded = false;
     this.appliedBillsInSession = {};
+    this.editingTransactionId = null;
 
     // UI State
     this.currentView = 'home';
@@ -136,6 +137,7 @@ class UangNihApp {
       drawerDetail: document.getElementById('drawer-detail'),
       btnCloseDetail: document.getElementById('btn-close-detail'),
       btnDetailDeleteAction: document.getElementById('btn-detail-delete-action'),
+      btnDetailEditAction: document.getElementById('btn-detail-edit-action'),
       btnDetailCloseAction: document.getElementById('btn-detail-close-action'),
 
       // Profile Modal
@@ -255,6 +257,16 @@ class UangNihApp {
         this.hideDrawer('detail');
       }
     });
+    this.el.btnDetailEditAction.addEventListener('click', () => {
+      const activeId = this.el.btnDetailDeleteAction.getAttribute('data-id');
+      if (activeId) {
+        const transaction = this.transactions.find(t => t.id === activeId);
+        if (transaction) {
+          this.hideDrawer('detail');
+          this.openEditDrawer(transaction);
+        }
+      }
+    });
 
     // Month Selector for Stats
     this.el.btnPrevMonth.addEventListener('click', () => this.changeMonth(-1));
@@ -369,7 +381,14 @@ class UangNihApp {
   }
 
   hideDrawer(drawerId) {
-    if (drawerId === 'preview') this.el.drawerPreview.classList.remove('active');
+    if (drawerId === 'preview') {
+      this.el.drawerPreview.classList.remove('active');
+      this.editingTransactionId = null;
+      const saveButton = document.getElementById('btn-preview-save');
+      if (saveButton) {
+        saveButton.textContent = 'Simpan Transaksi';
+      }
+    }
     if (drawerId === 'detail') this.el.drawerDetail.classList.remove('active');
   }
 
@@ -943,6 +962,42 @@ class UangNihApp {
     }
   }
 
+  updateTransaction(id, updatedTransaction) {
+    if (this.user && !this.isDemoMode) {
+      // Update in real Firebase Firestore
+      this.firestoreDb.collection('users')
+        .doc(this.user.uid)
+        .collection('transactions')
+        .doc(id)
+        .update(updatedTransaction)
+        .catch(err => {
+          console.error("Gagal memperbarui di Firestore:", err);
+          alert("Error: " + err.message);
+        });
+    } else {
+      // Local/Demo mock update
+      const storageKey = this.user
+        ? `uangnih_demo_cloud_${this.user.uid}`
+        : 'uangnih_local_transactions';
+
+      const index = this.transactions.findIndex(t => t.id === id);
+      if (index !== -1) {
+        const original = this.transactions[index];
+        this.transactions[index] = {
+          ...original,
+          ...updatedTransaction,
+          id // make sure id doesn't change
+        };
+        this.sortTransactions();
+        localStorage.setItem(storageKey, JSON.stringify(this.transactions));
+
+        this.renderDashboard();
+        this.renderTransactions();
+        if (this.currentView === 'stats') this.updateStatsView();
+      }
+    }
+  }
+
   showSkeletonLoading(show) {
     if (show) {
       this.el.transactionsSkeleton.setAttribute('loading', '');
@@ -984,6 +1039,30 @@ class UangNihApp {
     }
   }
 
+  openEditDrawer(transaction) {
+    this.editingTransactionId = transaction.id;
+
+    // Change title to "Ubah Transaksi"
+    const drawerTitle = document.querySelector('#drawer-preview .drawer-header h3');
+    if (drawerTitle) {
+      drawerTitle.textContent = 'Ubah Transaksi';
+    }
+
+    // Change submit button text
+    const saveButton = document.getElementById('btn-preview-save');
+    if (saveButton) {
+      saveButton.textContent = 'Simpan Perubahan';
+    }
+
+    this.setPreviewType(transaction.type);
+    this.el.previewDesc.value = transaction.description;
+    this.el.previewAmount.value = transaction.amount;
+    this.el.previewCategory.value = transaction.category;
+    this.el.previewDate.value = transaction.date;
+
+    this.showDrawer('preview');
+  }
+
   setPreviewType(type) {
     if (type === 'expense') {
       this.el.previewTypeExpense.classList.add('active');
@@ -1018,7 +1097,17 @@ class UangNihApp {
       return;
     }
 
-    this.saveTransaction(trans);
+    if (this.editingTransactionId) {
+      const original = this.transactions.find(t => t.id === this.editingTransactionId);
+      if (original) {
+        trans.time = original.time || timeStr;
+        trans.createdAt = original.createdAt || (now.toISOString().split('.')[0] + 'Z');
+      }
+      this.updateTransaction(this.editingTransactionId, trans);
+    } else {
+      this.saveTransaction(trans);
+    }
+
     this.hideDrawer('preview');
 
     // Reset inputs
